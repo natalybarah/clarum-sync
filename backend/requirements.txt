@@ -20,6 +20,7 @@ httptools==0.7.1
 httpx==0.28.1
 hyperframe==6.1.0
 idna==3.13
+iniconfig==2.3.0
 jiter==0.14.0
 markdown-it-py==4.2.0
 mdurl==0.1.2
@@ -30,6 +31,7 @@ packaging==26.2
 pdfminer.six==20251230
 pdfplumber==0.11.9
 pillow==12.2.0
+pluggy==1.6.0
 postgrest==2.30.0
 propcache==0.5.2
 pycparser==3.0
@@ -41,6 +43,7 @@ PyJWT==2.12.1
 pyparsing==3.3.2
 pypdfium2==5.8.0
 pyroaring==1.1.0
+pytest==9.0.3
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
 python-multipart==0.0.27
