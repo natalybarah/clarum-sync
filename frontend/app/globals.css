@@ -81,6 +81,108 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+
+/*
+
+---------------------------------------------------- Color Palette -------------------------------------------------------------
+Source: Radix UI Color system (Jade, Ruby, Amber, Sky, Slate and Mint)
+
+*/
+  
+  /* Radix Jade */
+  --_jade-3:  #e6f7ed;
+  --_jade-6:  #acdec8;
+  --_jade-9:  #29a383;
+  --_jade-11: #208368;
+
+  /* Radix Ruby */
+  --_ruby-3:  #feeaed;
+  --_ruby-7:  #efacb8;
+  --_ruby-9:  #e54666;
+  --_ruby-11: #ca244d;
+
+  /* Radix Amber */
+  --_amber-3:  #fff7c2;
+  --_amber-6:  #e9c162;
+  --_amber-9:  #ffc53d;
+  --_amber-11: #ad5700;
+
+  /* Radix Sky */
+  --_sky-3:  #e1f6fd;
+  --_sky-6:  #a9daed;
+  --_sky-11: #00749e;
+
+  /* Radix Slate */
+  --_slate-1:  #fcfcfd;
+  --_slate-2:  #f9f9fb;
+  --_slate-5:  #e0e1e6;
+  --_slate-9:  #8b8d98;
+  --_slate-11: #60646c;
+  --_slate-12: #1c2024;
+
+  /* Radix Mint */
+  --_mint-9:  #86ead4;
+  --_mint-11: #027864;
+
+/*
+
+---------------------------------------------------------------- Semantic Tokens -----------------------------------------------
+
+*/
+  
+  /* ── Brand ── */
+  --color-brand-accent:       var(--_mint-9);   /* logo mark, highlights */
+  --color-brand-header:       #0E2D27;          /* nav + footer background */
+
+
+  /* ── Surfaces ── */
+  --color-bg-page:            var(--_slate-2);  /* overall page background */
+  --color-bg-card:            #ffffff;          /* cards, table rows */
+  --color-bg-input:           var(--_slate-2);  /* search bar, inputs */
+  --color-bg-subtle:          var(--_slate-1);  /* table header, expanded rows */
+
+
+  /* ── Borders ── */
+  --color-border-default:             var(--_slate-5);  /* default border everywhere */
+
+
+  /* ── Text ── */
+  --color-text-primary:       var(--_slate-12); /* headings, case names */
+  --color-text-secondary:     var(--_slate-11); /* body text, table cells */
+  --color-text-muted:         var(--_slate-9);  /* labels, placeholders, case numbers */
+
+
+  /* ── Status: Confirmed (Jade) ── */
+  --color-confirmed-bg:       var(--_jade-3);
+  --color-confirmed-border:   var(--_jade-6);
+  --color-confirmed-text:     var(--_jade-11);
+  --color-confirmed-solid:    var(--_jade-9);   /* solid buttons e.g. Confirm & Save */
+
+
+  /* ── Status: Urgent / Gap Alert (Ruby) ── */
+  --color-urgent-bg:          var(--_ruby-3);
+  --color-urgent-border:      var(--_ruby-7);
+  --color-urgent-text:        var(--_ruby-11);
+  --color-urgent-solid:       var(--_ruby-9);   /* solid buttons e.g. Verify Now */
+
+
+  /* ── Status: Pending Review (Amber) ── */
+  --color-pending-bg:         var(--_amber-3);
+  --color-pending-border:     var(--_amber-6);
+  --color-pending-text:       var(--_amber-11);
+  --color-pending-solid:      var(--_amber-9);  /* solid buttons e.g. Review */
+
+
+  /* ── AI Extracted / Info (Sky) ── */
+  --color-ai-bg:              var(--_sky-3);    /* AI notice card background */
+  --color-ai-border:          var(--_sky-6);    /* AI notice card border */
+  --color-ai-text:            var(--_sky-11);   /* AI badge text */
+
+
+  /* ── Typography ── */
+--font-sans: 'Geist', sans-serif;
+--font-mono: 'Geist Mono', monospace;
 }
 
 .dark {

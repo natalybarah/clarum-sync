@@ -44,7 +44,7 @@ async def get_cases():
     # Fetch active cases with its corresponding hearings
 
     data= ( supabase.from_("cases")
-        .select("name, case_number, case_type, status, phase, county, "
+        .select("name, id, case_number, case_type, status, phase, county, "
         "hearings(hearing_date, hearing_time, hearing_name, department, judge, source, is_confirmed, confidence)")
         .eq("status", "active")
         .execute()
