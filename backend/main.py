@@ -25,7 +25,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# Uvicorn lives in the middle as a ASGI server that runs the FastAPI and listens HTTP Requests and sends responses back
+
 
 # /--------------------------------------------------- Home Endpoint ---------------------------------------------------------/
 

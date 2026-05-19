@@ -1,12 +1,18 @@
-export default function OtherLayout({
+import Header from "@/components/header";
+
+
+
+export default function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <div>
-      <h1>hi</h1>
-      {children}
+      <Header/>
+      <div className="p-6">
+        {children}
+      </div>
     </div>
   );
 }
