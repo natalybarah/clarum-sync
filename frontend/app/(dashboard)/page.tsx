@@ -1,36 +1,15 @@
-import { getCases} from "@/lib/api";
+import { getCases, getGapCases, getNotices} from "@/lib/api";
 import { Case} from "@/lib/types";
-import { IconCalendarSmile, IconCalendarSad, IconCalendarQuestion } from "@tabler/icons-react";
 import SummaryCard from "@/components/summary-card";
+import Dashboard from "@/components/dashboard";
+
 
 async function Home() {
   const cases= await getCases();
- 
-  const SummaryCardOptions={
-
-   confirmedCard: {
-      relevantNum: 45,
-      primaryText: "sss",
-      secondaryText: "www",
-      icon: "ww"
-    },
-
-    gapCard:{
-      relevantNum: 45,
-      primaryText: "sss",
-      secondaryText: "www",
-      icon: "ww"
-    },
-
-    pendingCard:{
-      relevantNum: 45,
-      primaryText: "sss",
-      secondaryText: "www",
-      icon: "ww"
-    }
-
-  }
- 
+  const gapCases= await getGapCases();
+  const notices= await getNotices();
+console.log("cases main", cases)
+  //console.log(gapCases,"gapcases from home")
 
   return (
     <div>
@@ -44,10 +23,12 @@ async function Home() {
           </div>
         ))}
       <div className="flex flex-row gap-6">
-        <SummaryCard cases={cases}/>
-        <SummaryCard cases={cases}/>
-        <SummaryCard cases={cases}/>
+        <SummaryCard cases={cases} gapCases={gapCases} notices={notices} cardType="confirmed"/>
+        <SummaryCard cases={cases} gapCases={gapCases} notices={notices} cardType="gap"/>
+        <SummaryCard cases={cases} gapCases={gapCases} notices={notices} cardType="pending"/>
+        
       </div>
+        <Dashboard cases={cases}/>
     </div>
   );
 }

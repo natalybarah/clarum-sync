@@ -30,6 +30,24 @@ MOCK_CASES = [
     }
 ]
 
+MOCK_CASES_MAIN = [
+    {
+        "id": "fake-uuid",
+        "name": "Martinez v. Pacific Logistics",
+        "case_number": "23STCV10234",
+        "case_type": "Class",
+        "status": "active",
+        "phase": "Litigation",
+        "county": "Los Angeles",
+        "last_hearing_date": "2026-01-15",
+        "last_hearing_name": "CMC",
+        "last_hearing_time": "09:00:00",
+        "next_hearing_date": "2026-06-15",
+        "next_hearing_name": "CMC",
+        "next_hearing_time": "09:00:00"
+    }
+]
+
 MOCK_NOTICES = [
     {
         "id": "fake-notice-uuid-001",
@@ -51,59 +69,48 @@ MOCK_NOTICES = [
 
 # /-------------------------------------------------- Test Get Cases -----------------------------------------------------/
 
-def test_get_cases_with_future_hearing():
+def test_get_cases_returns_correct_structure():
     with patch("main.supabase") as mock_supabase:
-        mock_supabase.from_.return_value.select.return_value.eq.return_value.execute.return_value.data = MOCK_CASES
+        mock_supabase.from_.return_value.select.return_value.eq.return_value.execute.return_value.data = MOCK_CASES_MAIN
         response = client.get("/cases") 
         assert response.status_code == 200
         assert isinstance(response.json(), list )
         result= response.json()
-        assert result[0]["hearings"][0]["is_next"]==True
+        assert result[0]["last_hearing_date"] is not None
+        assert result[0]["last_hearing_time"] is not None
+        assert result[0]["last_hearing_name"] is not None
+        assert result[0]["next_hearing_date"] is not None
+        assert result[0]["next_hearing_time"] is not None
+        assert result[0]["next_hearing_name"] is not None
 
-def test_get_cases_with_past_hearing():
-    past_date= (date.today()-  timedelta(days=30)).isoformat()
-    mock_past= copy.deepcopy(MOCK_CASES)
-    mock_past[0]["hearings"][0]["hearing_date"]= past_date
-
+def test_get_cases_no_past_hearing():
+    mock_no_past = {**MOCK_CASES_MAIN[0], 
+        "last_hearing_date": None,
+        "last_hearing_name": None,
+        "last_hearing_time": None
+    }
     with patch("main.supabase") as mock_supabase:
-        mock_supabase.from_.return_value.select.return_value.eq.return_value.execute.return_value.data = mock_past
-        response = client.get("/cases") 
-        assert response.status_code == 200
-        assert isinstance(response.json(), list )
-        result= response.json()
-        assert result[0]["hearings"][0]["is_past"]==True
-        assert result[0]["hearings"][0]["is_next"]==False
-
-def test_get_cases_with_multiple_hearings():
-    past_date = (date.today() - timedelta(days=30)).isoformat()
-    future_date_near = (date.today() + timedelta(days=20)).isoformat()
-    future_date_far = (date.today() + timedelta(days=60)).isoformat()
-
-    mock_multiple = copy.deepcopy(MOCK_CASES)
-    mock_multiple[0]["hearings"] = [
-        {**mock_multiple[0]["hearings"][0], "hearing_date": past_date},
-        {**mock_multiple[0]["hearings"][0], "hearing_date": future_date_near},
-        {**mock_multiple[0]["hearings"][0], "hearing_date": future_date_far},
-    ]
-
-    with patch("main.supabase") as mock_supabase:
-        mock_supabase.from_.return_value.select.return_value.eq.return_value.execute.return_value.data = mock_multiple
+        mock_supabase.from_.return_value.select.return_value.eq.return_value.execute.return_value.data = [mock_no_past]
         response = client.get("/cases")
         assert response.status_code == 200
         result = response.json()
-        hearings = result[0]["hearings"]
+        assert result[0]["last_hearing_date"] is None
+        assert result[0]["next_hearing_date"] is not None
 
-        # past hearing should be is_past=True, is_next=False
-        assert result[0]["hearings"][0]["is_past"] == True
-        assert result[0]["hearings"][0]["is_next"] == False
 
-        # nearest future hearing should be is_next=True
-        assert result[0]["hearings"][1]["is_next"] == True
-        assert result[0]["hearings"][1]["is_past"] == False
-
-        # farther future hearing should be is_next=False
-        assert result[0]["hearings"][2]["is_next"] == False
-        assert result[0]["hearings"][2]["is_past"] == False
+def test_get_cases_no_future_hearing():
+    mock_no_future = {**MOCK_CASES_MAIN[0],
+        "next_hearing_date": None,
+        "next_hearing_name": None,
+        "next_hearing_time": None
+    }
+    with patch("main.supabase") as mock_supabase:
+        mock_supabase.from_.return_value.select.return_value.eq.return_value.execute.return_value.data = [mock_no_future]
+        response = client.get("/cases")
+        assert response.status_code == 200
+        result = response.json()
+        assert result[0]["next_hearing_date"] is None
+        assert result[0]["last_hearing_date"] is not None
 
 # /----------------------------------------------------- Test Get Notices -------------------------------------------------/
 def test_get_notices():

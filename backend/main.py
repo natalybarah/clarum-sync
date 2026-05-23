@@ -39,34 +39,16 @@ def home():
 
 @app.get("/cases")
 async def get_cases():
-    today= date.today()
 
-    # Fetch active cases with its corresponding hearings
+    # Fetch active cases with the last and next hearing date
 
-    data= ( supabase.from_("cases")
-        .select("name, id, case_number, case_type, status, phase, county, "
-        "hearings(hearing_date, hearing_time, hearing_name, department, judge, source, is_confirmed, confidence)")
+    data= ( supabase.from_("cases_with_hearings")
+        .select("name, id, case_number, case_type, status, phase, county, last_hearing_date, last_hearing_name, last_hearing_time, \
+         next_hearing_date, next_hearing_name, next_hearing_time")
         .eq("status", "active")
         .execute()
     )
-    cases= data.data
-
-    # Set boolean value to is_past and is_next for every hearing 
-
-    for case in cases:
-        upcoming = [
-            h for h in case["hearings"]
-            if date.fromisoformat(h["hearing_date"]) >= today
-        ]
-        for h in case["hearings"]:
-            hearing_date = date.fromisoformat(h["hearing_date"])
-            h["is_past"] = hearing_date < today
-            h["is_next"] = (
-                len(upcoming) > 0 and
-                hearing_date == min(date.fromisoformat(u["hearing_date"]) for u in upcoming)
-            )
-
-    return cases
+    return data.data
 
 # /------------------------------------------------------- Get Notices --------------------------------------------------------/
 

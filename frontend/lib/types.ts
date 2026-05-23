@@ -18,8 +18,13 @@ export type Case = {
   case_type: string
   status: string
   phase: string
-  county: string
-  hearings: Hearing[]
+  county: string,
+  last_hearing_date: string | null,
+  last_hearing_time: string | null,
+  last_hearing_name: string | null,
+  next_hearing_date: string | null,
+  next_hearing_time: string | null,
+  next_hearing_name: string | null
 }
 
 export type Notice = {
