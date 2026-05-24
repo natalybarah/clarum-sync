@@ -20,20 +20,24 @@ EXTRACTED_HEARING_INFO= {
     'hearing_name': 'Case Management Conference',
     'department': '12',
     'judge': 'jim clark',
-    'case_number': '23STCV16901'
+    'case_number': '23STCV16901',
+    'court': 'Los Angeles Superior Court'
     }
 # /---------------------------------------------------- Assign Confidence Score ---------------------------------------/
 
 def test_assign_confidence_score_high():
-    assert assign_confidence_score(EXTRACTED_HEARING_INFO) == "HIGH"
+    confidence_score, _ = assign_confidence_score(EXTRACTED_HEARING_INFO)
+    assert confidence_score == "HIGH"
 
 def test_assign_confidence_score_medium():
     extracted= {**EXTRACTED_HEARING_INFO, "judge": None}
-    assert assign_confidence_score(extracted) == "MEDIUM"
+    confidence_score, _ = assign_confidence_score(extracted)
+    assert confidence_score == "MEDIUM"
 
 def test_assign_confidence_score_low():
     extracted= {**EXTRACTED_HEARING_INFO, "case_number": None}
-    assert assign_confidence_score(extracted) == "LOW"
+    confidence_score, _ = assign_confidence_score(extracted)
+    assert confidence_score == "LOW"
 
 # /---------------------------------------------------- Get Hearing From Text -----------------------------------------/
 
@@ -55,7 +59,7 @@ def test_insert_notice_with_high_score():
             # Mock to insert hearing and returning a notice id
             mock_supabase.table.return_value.insert.return_value.execute.return_value.data = [{"id": "fake-notice-uuid"}] #EXTRACTED_HEARING_INFO
             
-            insert_notice(EXTRACTED_HEARING_INFO, "HIGH", TEST_NOTICE_TEXT)
+            insert_notice(EXTRACTED_HEARING_INFO, "HIGH", "All fields were extracted", TEST_NOTICE_TEXT)
 
             # Verify that insert_hearing function is invoked
             mock_insert_hearing.assert_called_once()
@@ -70,7 +74,7 @@ def test_insert_notice_with_medium_score():
             # Mock to insert hearing and returning a notice id
             mock_supabase.table.return_value.insert.return_value.execute.return_value.data= [{"id": "fake-notice-uuid"}]
 
-            insert_notice(EXTRACTED_HEARING_INFO, "MEDIUM", TEST_NOTICE_TEXT)
+            insert_notice(EXTRACTED_HEARING_INFO, "MEDIUM", "Judge not found", TEST_NOTICE_TEXT)
 
             # Verify that insert_hearing function is not invoked
             mock_insert_hearing.assert_not_called()
@@ -82,7 +86,7 @@ def test_insert_notice_case_not_found():
             # Mock for a case that was not found
             mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value.data = []
 
-            insert_notice(EXTRACTED_HEARING_INFO, "HIGH", TEST_NOTICE_TEXT)
+            insert_notice(EXTRACTED_HEARING_INFO, "HIGH", "All fields were extracted" ,  TEST_NOTICE_TEXT)
 
             # Verify nothing was inserted since case wasn't found
             mock_insert_hearing.assert_not_called()

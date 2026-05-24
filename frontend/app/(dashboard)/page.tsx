@@ -15,20 +15,13 @@ console.log("cases main", cases)
     <div>
      
   
-        {cases.map((c: Case)=>(
-          <div key={c.id}>
-
-            <h1 >{c.name}</h1>
-            
-          </div>
-        ))}
       <div className="flex flex-row gap-6">
         <SummaryCard cases={cases} gapCases={gapCases} notices={notices} cardType="confirmed"/>
         <SummaryCard cases={cases} gapCases={gapCases} notices={notices} cardType="gap"/>
         <SummaryCard cases={cases} gapCases={gapCases} notices={notices} cardType="pending"/>
         
       </div>
-        <Dashboard cases={cases}/>
+        <Dashboard cases={cases} notices={notices} />
     </div>
   );
 }

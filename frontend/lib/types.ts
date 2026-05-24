@@ -1,7 +1,9 @@
 export type Hearing = {
+  id: string,
   hearing_date: string
   hearing_time: string
-  hearing_name: string
+  hearing_name: string,
+  hearing_type: string,
   department: string
   judge: string
   source: string
@@ -22,9 +24,11 @@ export type Case = {
   last_hearing_date: string | null,
   last_hearing_time: string | null,
   last_hearing_name: string | null,
+  last_hearing_type: string | null,
   next_hearing_date: string | null,
   next_hearing_time: string | null,
-  next_hearing_name: string | null
+  next_hearing_name: string | null,
+  next_hearing_type: string | null,
 }
 
 export type Notice = {
@@ -37,7 +41,9 @@ export type Notice = {
   extracted_name: string
   extracted_judge: string
   confidence: string
-  confidence_reason: string
+  confidence_reason: string,
+  court: string,
+  extracted_department: string,
   cases: {
     name: string
     case_type: string

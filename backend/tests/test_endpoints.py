@@ -19,7 +19,8 @@ MOCK_CASES = [
             {
                 "hearing_date": "2026-06-15",
                 "hearing_time": "09:00:00",
-                "hearing_name": "CMC",
+                "hearing_name": "Case Management Conference",
+                "hearing_type": "CMC",
                 "department": "Dept. 12",
                 "judge": "Hon. Sandra Rivera",
                 "source": "manual",
@@ -40,11 +41,14 @@ MOCK_CASES_MAIN = [
         "phase": "Litigation",
         "county": "Los Angeles",
         "last_hearing_date": "2026-01-15",
-        "last_hearing_name": "CMC",
+        "last_hearing_name": "Case Management Conference",
         "last_hearing_time": "09:00:00",
+        "last_hearing_type": "CMC", 
         "next_hearing_date": "2026-06-15",
-        "next_hearing_name": "CMC",
-        "next_hearing_time": "09:00:00"
+        "next_hearing_name": "Case Management Conference",
+        "next_hearing_time": "09:00:00",
+        "next_hearing_type": "CMC"
+
     }
 ]
 

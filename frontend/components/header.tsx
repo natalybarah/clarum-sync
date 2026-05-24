@@ -10,7 +10,7 @@ const Header= ()=>{
                 <span className="text-text-on-dark-primary font-semibold text-[15px] tracking-tight font-sans">Clarum Sync</span>
             </div>
             <div className="flex flex-column gap-7 items-center">
-                <div className="flex items-center gap-1.5 bg-white/5 border border-white/[0.07] rounded-full px-2.5 py-1 text-[12px] text-[#CBD5E1] font-medium">
+                <div className="flex items-center gap-1.5 bg-white/5 border border-white/[0.07] rounded-full px-2.5 py-1 text-[12px] text-text-on-dark-primary font-medium">
                     <span className="w-1.75 h-1.75 rounded-full bg-confirmed-solid inline-block" />
                     <span> Team Camila </span>
                 </div>

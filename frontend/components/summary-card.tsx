@@ -4,15 +4,18 @@ import { IconCalendarSmile, IconCalendarSad, IconCalendarQuestion } from "@table
 
 export type CardType= 'confirmed' | 'gap' | 'pending'
 
+/*
 
+
+*/
 const SummaryCard= async ({cases, cardType, gapCases, notices}: {cases: Case[], cardType: CardType,
     gapCases: Case[], notices: Notice[] })=>{
     
     const numActiveCases= cases.length
     console.log(gapCases, "gap cases here")
     const confirmedCases= cases.filter((c: Case)=> { 
-       return c.hearings && c.hearings.length > 0 &&  c.hearings[0].is_next === true}
-    )
+       return c.next_hearing_date !== null
+    })
     const result= numActiveCases > 0 ? ( confirmedCases.length / numActiveCases) * 100 : 0
     const confirmedCasePercent= Math.round(result)
 

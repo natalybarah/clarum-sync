@@ -21,11 +21,12 @@ openai_client= OpenAI()
 class HearingInfo(BaseModel):
     hearing_date: Optional[str]
     hearing_time: Optional[str]
-    hearing_type: Optional[Literal["OSC", "Trial", "TRC", "CMC", "Other"]]
+    hearing_type: Optional[Literal["OSC", "Trial", "TRC", "CMC", "Motion", "Other"]]
     hearing_name: Optional[str]
     department: Optional[str]
     judge: Optional[str]
     case_number: Optional[str]
+    court: Optional[str]
 
 # /----------------------------------------------- Test data ----------------------------------------------------------------/
 
@@ -77,13 +78,15 @@ judge:
 case_number:
 - Exactly as written — preserve formatting, dashes, and capitalization
 - Look for labels like "CASE NO.", "Case Number:", "No."
+court:
+- Full name of the court
 If a field cannot be found after careful reading, return null.
 Do not guess or infer — only extract what is explicitly stated.
 """
 
 REQUIRED_FIELDS= ["hearing_date", "case_number", "hearing_time"]
 
-OPTIONAL_FIELDS = [ "hearing_name", "department", "hearing_type", "judge"]
+OPTIONAL_FIELDS = [ "hearing_name", "department", "hearing_type", "judge", "court"]
 
 # ------------------------------------------------- Get hearing Info From Text ------------------------------------------/
 def get_hearing_from_text(raw_notice_text: str) -> dict:
@@ -109,9 +112,11 @@ def assign_confidence_score(extracted_hearing_info) -> str:
 
     required_missing = [f for f in REQUIRED_FIELDS if not extracted_hearing_info.get(f)]
     optional_missing = [f for f in OPTIONAL_FIELDS if not extracted_hearing_info.get(f)]
-
+    total_fields = len(REQUIRED_FIELDS) + len(OPTIONAL_FIELDS)
+    extracted_count = total_fields - len(required_missing) - len(optional_missing)
+    all_missing = required_missing + optional_missing
     confidence_score= "HIGH"
-
+    
     # Determines confidence score based on length of missing fields 
 
     if len(required_missing) == 0 and len(optional_missing) == 0:
@@ -122,7 +127,16 @@ def assign_confidence_score(extracted_hearing_info) -> str:
       confidence_score = "LOW"
     print("confidence score:", confidence_score)
 
-    return confidence_score
+    # Displays confidence reason based on missing fields  
+    if confidence_score == "HIGH":
+        confidence_reason = "All fields were extracted"
+    else:
+        if len(all_missing) >= 3:
+            confidence_reason = f"{len(all_missing)} fields not found"
+        else:
+            missing_str = " and ".join(all_missing)
+            confidence_reason = f"{missing_str} not found"
+    return confidence_score, confidence_reason
 
 # /---------------------------------------------- Insert Hearing -------------------------------------------------------------/
 
@@ -132,12 +146,6 @@ def insert_hearing(confidence_score, is_confirmed, result, find_case_id, notice_
 
     if not find_case_id.data:
         return
-
-    # Determines hearing timeline relative to today
-
-    hearing_date = date.fromisoformat(result["hearing_date"])
-    is_past= hearing_date < date.today()
-    is_next= hearing_date >= date.today()
 
     # Insert a hearing to database linked to its case and the notice that triggered it
 
@@ -153,8 +161,6 @@ def insert_hearing(confidence_score, is_confirmed, result, find_case_id, notice_
                 "confidence": confidence_score,
                 "is_confirmed": is_confirmed,
                 "case_id": find_case_id.data[0]["id"],
-                "is_past": is_past,
-                "is_next": is_next,
                 "notice_id": notice_id
                 })
         .execute()
@@ -163,7 +169,7 @@ def insert_hearing(confidence_score, is_confirmed, result, find_case_id, notice_
 
 # /----------------------------------------------------- Insert Notice ----------------------------------------------------/
 
-def insert_notice(hearing_info, confidence_score, raw_notice_text):
+def insert_notice(hearing_info, confidence_score, confidence_reason, raw_notice_text):
 
     notice_status= "pending"
 
@@ -200,8 +206,9 @@ def insert_notice(hearing_info, confidence_score, raw_notice_text):
                 "raw_content": raw_notice_text,
                 "notice_status": notice_status,
                 "confidence": confidence_score,
+                "court": hearing_info["court"],
                 "case_id": find_case_id.data[0]["id"],
-                "confidence_reason": "All fields were extracted" if confidence_score == "HIGH" else "Missing optional fields"
+                "confidence_reason": confidence_reason
                 })
         .execute()
     )
@@ -217,8 +224,8 @@ def insert_notice(hearing_info, confidence_score, raw_notice_text):
 
 if __name__ == "__main__":
     hearing_info =  get_hearing_from_text(TEST_NOTICE_TEXT)
-    confidence_score= assign_confidence_score(hearing_info)
-    insert_notice(hearing_info, confidence_score, TEST_NOTICE_TEXT)
+    confidence_score, confidence_reason= assign_confidence_score(hearing_info)
+    insert_notice(hearing_info, confidence_score, confidence_reason, TEST_NOTICE_TEXT)
 
 
 

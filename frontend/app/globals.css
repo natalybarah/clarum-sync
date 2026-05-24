@@ -40,6 +40,7 @@ Source: Radix UI Color system (Jade, Ruby, Amber, Sky, Slate and Mint)
   --_slate-2:  #f9f9fb;
   --_slate-5:  #e0e1e6;
   --_slate-9:  #8b8d98;
+  --_slate-10: #80838d;
   --_slate-11: #60646c;
   --_slate-12: #1c2024;
 
@@ -71,7 +72,8 @@ Source: Radix UI Color system (Jade, Ruby, Amber, Sky, Slate and Mint)
 
   /* ── Text ── */
   --color-text-primary:       var(--_slate-12); /* headings, case names */
-  --color-text-secondary:     var(--_slate-11); /* body text, table cells */
+  --color-text-secondary:     var(--_slate-10); 
+  --color-text-tertiary:      var(--_slate-11); /* body text, table cells */
   --color-text-muted:         var(--_slate-9);  /* labels, placeholders, case numbers */
 
   /* Text on dark surfaces (navbar, footer) */

@@ -43,8 +43,8 @@ async def get_cases():
     # Fetch active cases with the last and next hearing date
 
     data= ( supabase.from_("cases_with_hearings")
-        .select("name, id, case_number, case_type, status, phase, county, last_hearing_date, last_hearing_name, last_hearing_time, \
-         next_hearing_date, next_hearing_name, next_hearing_time")
+        .select("name, id, case_number, case_type, status, phase, county, last_hearing_date, last_hearing_name, last_hearing_time, last_hearing_type, \
+         next_hearing_date, next_hearing_name, next_hearing_time, next_hearing_type")
         .eq("status", "active")
         .execute()
     )
@@ -56,7 +56,7 @@ async def get_cases():
 async def get_notices():
     # Fetch notices linked to its corresponding case 
     data= ( supabase.from_("notices")
-    .select("id, source, raw_content, extracted_case_number, extracted_date, extracted_time, extracted_name, extracted_judge, confidence, confidence_reason,"
+    .select("id, source, raw_content, extracted_case_number, extracted_date, extracted_time, extracted_name, extracted_judge, confidence, confidence_reason, court, extracted_department,"
     "cases(name, case_type)")
     .eq("notice_status", "pending")
     .execute()
@@ -75,8 +75,8 @@ async def get_cases_gap():
     # Fetch the cases with its corresponding hearings
 
     data= ( supabase.from_("cases")
-        .select("name, case_number, case_type, status, phase, county, "
-        "hearings(hearing_date, hearing_time, hearing_name, department, judge, source, is_confirmed, confidence)")
+        .select("name, case_number, case_type, status, phase, county, id,"
+        "hearings(hearing_date, hearing_time, hearing_name, department, judge, source, is_confirmed, confidence, hearing_type)")
         .eq("status", "active")
         .execute()
     )

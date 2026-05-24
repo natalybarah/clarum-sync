@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge"
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
-
+/*
  const genExtraInfoCases= ()=>{
            
         return   cases.map((caseItem: Case)=>{
@@ -46,10 +46,11 @@ export function cn(...inputs: ClassValue[]) {
             return {...caseItem, pastHearingDate, futureHearingDate, pastHearingName, futureHearingName}
         })
 }
-
+*/
 // Gets cases with last and next hearing
 
-   const extendedCases= cases.map(((c): ExtendedCase=>{
+/*
+const extendedCases= cases.map(((c): ExtendedCase=>{
         // Checks a case has hearing items to continue
         if (!c.hearings || c.hearings.length === 0){
             return {...c, pastHearingDate: null, futureHearingDate: null, lastHearing: null, nextHearing: null }
@@ -72,3 +73,24 @@ export function cn(...inputs: ClassValue[]) {
         // Returns case item with additional fields including the hearing object to access its name 
         return {...c, pastHearingDate, futureHearingDate, lastHearing: findPastHearings[0] ?? null, nextHearing: findFutureHearings[0] ?? null}
     }))
+*/
+
+export const formatDate=(dateStr: string | null | undefined)=>{
+    if(!dateStr) return null;
+    const timestamp= Date.parse(dateStr)
+    if (!timestamp || !isFinite(timestamp)) return null;
+    return new Date(dateStr).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+    })
+}
+
+export const formatTime=(timeStr: string | null | undefined)=> {
+    if(!timeStr) return null
+    return new Date(`1970-01-01T${timeStr}`).toLocaleTimeString('en-US',{
+        hour: 'numeric',
+        minute: "2-digit",
+        hour12: true
+    })
+}
