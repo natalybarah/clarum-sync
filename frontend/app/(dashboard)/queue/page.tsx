@@ -1,5 +1,6 @@
+export const dynamic = 'force-dynamic'
 import { getGapCases, getNotices } from "@/lib/api";
-import { Case, Notice} from "@/lib/types";
+import { Case, Notice, Hearing} from "@/lib/types";
 import NoticeCard from "@/components/notice-card";
 import GapCard from "@/components/gap-card";
 type ExtendedGapCase = Case & {

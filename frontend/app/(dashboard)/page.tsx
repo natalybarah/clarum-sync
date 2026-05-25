@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { getCases, getGapCases, getNotices} from "@/lib/api";
 import { Case} from "@/lib/types";
 import SummaryCard from "@/components/summary-card";
