@@ -3,17 +3,18 @@ import { getCases, getGapCases, getNotices} from "@/lib/api";
 import { Case} from "@/lib/types";
 import SummaryCard from "@/components/summary-card";
 import Dashboard from "@/components/dashboard";
-
+import SearchBar from "@/components/search-bar";
 
 async function Home() {
   const cases= await getCases();
   const gapCases= await getGapCases();
   const notices= await getNotices();
+  const queueCount= gapCases.length + notices.length
 console.log("cases main", cases)
   //console.log(gapCases,"gapcases from home")
 
   return (
-    <div>
+    <div className="flex flex-col gap-4">
      
   
       <div className="flex flex-row gap-6">
@@ -22,6 +23,7 @@ console.log("cases main", cases)
         <SummaryCard cases={cases} gapCases={gapCases} notices={notices} cardType="pending"/>
         
       </div>
+        <SearchBar queueCount={queueCount} />
         <Dashboard cases={cases} notices={notices} />
     </div>
   );

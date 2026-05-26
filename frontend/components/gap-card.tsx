@@ -1,11 +1,24 @@
+'use client'
 import { formatDate, formatTime} from "@/lib/utils";
 import { Case, Hearing } from "@/lib/types";
+import { CaseType } from "./ui/case-type-badge";
+import { QueueIconButton, QueuePillButton } from "./ui/queue-button";
+import CaseTypeBadge from "./ui/case-type-badge";
 
 type ExtendedGapCase = Case & {
     confidence: string,
     hearings: Hearing[]
 
 }
+
+type GapUrgency= "URGENT" | "REVIEW"
+
+const urgencyStyles: Record<GapUrgency, string>={
+    URGENT: "bg-urgent-bg border-urgent-border border text-urgent-text",
+    REVIEW: "bg-pending-bg border-pending-border border text-pending-text"
+}
+
+
 /*
 
 
@@ -27,34 +40,42 @@ const GapCard=({gapCase}: {gapCase: ExtendedGapCase})=>{
 
         const result = new Date().getTime() - Date.parse(pastHearings[0].hearing_date);
         const newResult= Math.floor(result / 1000 / 60 / 60 / 24)
-        const status= newResult > 100 ? "Urgent" : "Review"
-    /*
-    500000
-    num / 1000ms= num in sg
-    num /60seg= num in min
-    num /60min = num in hours
-    num /24h= num in h
-    num 
-    */
-        
-    //}
-   // calcDaysFromLastHearing()
+        const status: GapUrgency= newResult > 90 ? "URGENT" : "REVIEW"
+
+ 
 
     
     return(
-        <div className="flex flex-row">
-            <div className="flex flex-col">
-                <div className="flex flex-row">
-                    <h3>{gapCase.name}</h3>
-                    <span>{gapCase.case_type}</span>
-                    <span>{status}</span>
+        <div className="bg-bg-card border border-border-default rounded-2xl px-4 py-3.5 flex flex-row justify-between gap-4 mb-2">
+            
+            <div className="flex flex-col gap-1.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[14px] font-semibold text-text-primary">{gapCase.name}</span>
+                    <CaseTypeBadge variant={gapCase.case_type as CaseType} />
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded full border ${urgencyStyles[status]}`}>{status}</span>
                 </div>
-                    <p>{`No confirmed next hearing — last hearing was ${newResult} days ago `}</p>
-                    <p>{`Last: ${pastHearings[0].hearing_type}` }</p>
+
+                <div className=" text-[13px] text-text-tertiary">
+                    No confirmed next hearing 
+                    {newResult &&(
+                      <span className="text-text-tertiary">
+                       {` — last hearing was ${newResult} days ago`} 
+                      </span> 
+                    )}  
+
+                   
+                </div>
+                    <div className="text-[11px] text-text-muted font-mono">
+                        {gapCase.last_hearing_date
+                            ? `Last: ${pastHearings[0].hearing_type} · ${formatDate(gapCase.last_hearing_date)} at ${formatTime(gapCase.last_hearing_time)}`
+                            : "No hearing history found"
+                        }
+                    </div>
             </div>
-            <div className="flex flex-col">
-                <p>Verify now</p>
-                <p>Mark verified</p>
+            <div className="flex items-center gap-2 flex-0">
+                <QueuePillButton variant ="verify" onClick={()=> {}}/>
+                <QueueIconButton variant= "verify" onClick={()=>{}}/>
+                <QueueIconButton variant="reject" onClick={()=>{}}/>
             </div>
         </div>
     )

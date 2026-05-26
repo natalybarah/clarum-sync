@@ -38,15 +38,24 @@ Source: Radix UI Color system (Jade, Ruby, Amber, Sky, Slate and Mint)
   /* Radix Slate */
   --_slate-1:  #fcfcfd;
   --_slate-2:  #f9f9fb;
+  --_slate-3:  #f0f0f3;
   --_slate-5:  #e0e1e6;
+  --_slate-6:  #d9d9e0;
   --_slate-9:  #8b8d98;
   --_slate-10: #80838d;
   --_slate-11: #60646c;
   --_slate-12: #1c2024;
 
+
   /* Radix Mint */
   --_mint-9:  #86ead4;
   --_mint-11: #027864;
+
+  /* Radix Purple */
+  --_purple-3:#f4eaff;
+  --_purple-6:#d4c8f5;
+  --_purple-11:#8347b9;
+
 
 /*
 
@@ -107,6 +116,34 @@ Source: Radix UI Color system (Jade, Ruby, Amber, Sky, Slate and Mint)
   --color-ai-border:          var(--_sky-6);    /* AI notice card border */
   --color-ai-text:            var(--_sky-11);   /* AI badge text */
 
+  /* Purple Badge */
+  --color-badge-purple-bg:       var(--_purple-3);
+  --color-badge-purple-border:   var(--_purple-6);
+  --color-badge-purple-text:     var(--_purple-11);   
+
+
+  /* WT Badge */
+  --color-badge-wt-bg:           var(--_slate-3);
+  --color-badge-wt-border:       var(--_slate-6);
+  --color-badge-wt-text:         var(--_slate-11);
+
+  /*
+
+   --s3:#f0f0f3;
+  --s4:#e8e8ec;
+  --s5:#e0e1e6;
+  --s6:#d9d9e0;
+  --s7:#cdced6;
+  --s8:#b9bbc6;
+  --s9:#8b8d98;
+  --s10:#80838d;
+  --s11:#60646c;
+.cb-class{background:var(--purple-3);color:var(--purple-11);border:1px solid var(--purple-6);}
+.cb-paga {background:var(--amber-3); color:var(--amber-11); border:1px solid var(--amber-6);}
+.cb-feha {background:var(--sky-3);   color:var(--sky-11);   border:1px solid var(--sky-6);}
+.cb-ret  {background:var(--tomato-3);color:var(--tomato-11);border:1px solid var(--tomato-6);}
+.cb-wt   {background:var(--s3);      color:var(--s11);      border:1px solid var(--s6);}
+*/
 
   /* ── Typography ── */
   --font-sans: 'Geist', sans-serif;
