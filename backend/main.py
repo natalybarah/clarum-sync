@@ -38,17 +38,26 @@ def home():
 # /--------------------------------------------------- Get All Active Cases ---------------------------------------------------/
 
 @app.get("/cases")
-async def get_cases():
-
+async def get_cases(page: int = 1, limit:int = 10):
+    offset= (page -1) * limit
     # Fetch active cases with the last and next hearing date
 
     data= ( supabase.from_("cases_with_hearings")
         .select("name, id, case_number, case_type, status, phase, county, last_hearing_date, last_hearing_name, last_hearing_time, last_hearing_type, \
-         next_hearing_date, next_hearing_name, next_hearing_time, next_hearing_type")
+         next_hearing_date, next_hearing_name, next_hearing_time, next_hearing_type",
+         count="exact"
+         )
         .eq("status", "active")
+        .range(offset, offset + limit - 1 )
         .execute()
     )
-    return data.data
+    return {
+        "cases": data.data,
+        "total": data.count,
+        "page": page,
+        "limit": limit,
+        "total_pages": -(-data.count // limit)
+    }
 
 # /------------------------------------------------------- Get Notices --------------------------------------------------------/
 

@@ -1,8 +1,10 @@
 const FAST_API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"
 
-export const getCases= async() =>{
+export const getCases= async(page: number = 1) =>{
     console.log('API URL:', FAST_API_URL)
-    const data= await fetch(`${FAST_API_URL}/cases`, { cache: 'no-store' })
+    console.log('fetching page:', page)
+    const data= await fetch(`${FAST_API_URL}/cases?page=${page}`, { cache: 'no-store' })
+    
     if (!data.ok) throw new Error(`An error ocurred, failed to fetch cases ${data.status} ${data.statusText}`)
     const cases= await data.json()
     return cases

@@ -75,32 +75,33 @@ MOCK_NOTICES = [
 
 def test_get_cases_returns_correct_structure():
     with patch("main.supabase") as mock_supabase:
-        mock_supabase.from_.return_value.select.return_value.eq.return_value.execute.return_value.data = MOCK_CASES_MAIN
-        response = client.get("/cases") 
+        mock_supabase.from_.return_value.select.return_value.eq.return_value.range.return_value.execute.return_value.data = MOCK_CASES_MAIN
+        mock_supabase.from_.return_value.select.return_value.eq.return_value.range.return_value.execute.return_value.count = 1
+        response = client.get("/cases")
         assert response.status_code == 200
-        assert isinstance(response.json(), list )
-        result= response.json()
-        assert result[0]["last_hearing_date"] is not None
-        assert result[0]["last_hearing_time"] is not None
-        assert result[0]["last_hearing_name"] is not None
-        assert result[0]["next_hearing_date"] is not None
-        assert result[0]["next_hearing_time"] is not None
-        assert result[0]["next_hearing_name"] is not None
+        result = response.json()
+        assert isinstance(result["cases"], list)
+        assert result["cases"][0]["last_hearing_date"] is not None
+        assert result["cases"][0]["last_hearing_time"] is not None
+        assert result["cases"][0]["last_hearing_name"] is not None
+        assert result["cases"][0]["next_hearing_date"] is not None
+        assert result["cases"][0]["next_hearing_time"] is not None
+        assert result["cases"][0]["next_hearing_name"] is not None
 
 def test_get_cases_no_past_hearing():
-    mock_no_past = {**MOCK_CASES_MAIN[0], 
+    mock_no_past = {**MOCK_CASES_MAIN[0],
         "last_hearing_date": None,
         "last_hearing_name": None,
         "last_hearing_time": None
     }
     with patch("main.supabase") as mock_supabase:
-        mock_supabase.from_.return_value.select.return_value.eq.return_value.execute.return_value.data = [mock_no_past]
+        mock_supabase.from_.return_value.select.return_value.eq.return_value.range.return_value.execute.return_value.data = [mock_no_past]
+        mock_supabase.from_.return_value.select.return_value.eq.return_value.range.return_value.execute.return_value.count = 1
         response = client.get("/cases")
         assert response.status_code == 200
         result = response.json()
-        assert result[0]["last_hearing_date"] is None
-        assert result[0]["next_hearing_date"] is not None
-
+        assert result["cases"][0]["last_hearing_date"] is None
+        assert result["cases"][0]["next_hearing_date"] is not None
 
 def test_get_cases_no_future_hearing():
     mock_no_future = {**MOCK_CASES_MAIN[0],
@@ -109,12 +110,13 @@ def test_get_cases_no_future_hearing():
         "next_hearing_time": None
     }
     with patch("main.supabase") as mock_supabase:
-        mock_supabase.from_.return_value.select.return_value.eq.return_value.execute.return_value.data = [mock_no_future]
+        mock_supabase.from_.return_value.select.return_value.eq.return_value.range.return_value.execute.return_value.data = [mock_no_future]
+        mock_supabase.from_.return_value.select.return_value.eq.return_value.range.return_value.execute.return_value.count = 1
         response = client.get("/cases")
         assert response.status_code == 200
         result = response.json()
-        assert result[0]["next_hearing_date"] is None
-        assert result[0]["last_hearing_date"] is not None
+        assert result["cases"][0]["next_hearing_date"] is None
+        assert result["cases"][0]["last_hearing_date"] is not None
 
 # /----------------------------------------------------- Test Get Notices -------------------------------------------------/
 def test_get_notices():

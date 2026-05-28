@@ -8,16 +8,15 @@ export type CardType= 'confirmed' | 'gap' | 'pending'
 
 
 */
-const SummaryCard= async ({cases, cardType, gapCases, notices}: {cases: Case[], cardType: CardType,
-    gapCases: Case[], notices: Notice[] })=>{
+const SummaryCard= async ({cardType, totalCases, gapCount, noticeCount}: {
+    cardType: CardType
+    totalCases: number
+    gapCount: number
+    noticeCount: number
+})=>{
     
-    const numActiveCases= cases.length
-    console.log(gapCases, "gap cases here")
-    const confirmedCases= cases.filter((c: Case)=> { 
-       return c.next_hearing_date !== null
-    })
-    const result= numActiveCases > 0 ? ( confirmedCases.length / numActiveCases) * 100 : 0
-    const confirmedCasePercent= Math.round(result)
+    const confirmedCount = totalCases - gapCount
+    const confirmedPercent = totalCases > 0 ? Math.round((confirmedCount / totalCases) * 100) : 0
 
     const summaryCardFields: Record<CardType, {
         icon: TablerIcon,
@@ -28,21 +27,21 @@ const SummaryCard= async ({cases, cardType, gapCases, notices}: {cases: Case[], 
     }>={
             confirmed: {
                 icon: IconCalendarSmile,
-                relevantNum: `${confirmedCases.length}`,
+                relevantNum: `${confirmedCount}`,
                 primaryText: "Confirmed",
-                secondaryText: `${confirmedCasePercent}% of all cases have covered hearings`,
+                secondaryText: `${confirmedPercent}% of all cases have covered hearings`,
             },
 
             gap:{
                 icon: IconCalendarSad,
-                relevantNum: `${gapCases.length}`,
+                relevantNum: `${gapCount}`,
                 primaryText: "Gap alerts",
                 secondaryText: "No hearing in 90 days",
             },
 
             pending:{
                 icon: IconCalendarQuestion,
-                relevantNum: `${notices.length}`,
+                relevantNum: `${noticeCount}`,
                 primaryText: "Pending review",
                 secondaryText: "AI notices awaiting confirmation from paralegal",
             }

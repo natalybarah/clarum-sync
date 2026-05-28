@@ -1,30 +1,49 @@
 export const dynamic = 'force-dynamic'
 import { getCases, getGapCases, getNotices} from "@/lib/api";
-import { Case} from "@/lib/types";
 import SummaryCard from "@/components/summary-card";
 import Dashboard from "@/components/dashboard";
 import SearchBar from "@/components/search-bar";
 
-async function Home() {
-  const cases= await getCases();
+async function Home({searchParams}: {searchParams: Promise<{page?: string}>}) {
+
+  const resultSearchParams= await searchParams;
+  const currentPage= Number(resultSearchParams?.page) || 1
+  const casesData= await getCases(currentPage);
+  console.log("casesData:", casesData)
   const gapCases= await getGapCases();
   const notices= await getNotices();
   const queueCount= gapCases.length + notices.length
-console.log("cases main", cases)
-  //console.log(gapCases,"gapcases from home")
+
 
   return (
-    <div className="flex flex-col gap-4">
-     
-  
-      <div className="flex flex-row gap-6">
-        <SummaryCard cases={cases} gapCases={gapCases} notices={notices} cardType="confirmed"/>
-        <SummaryCard cases={cases} gapCases={gapCases} notices={notices} cardType="gap"/>
-        <SummaryCard cases={cases} gapCases={gapCases} notices={notices} cardType="pending"/>
-        
-      </div>
-        <SearchBar queueCount={queueCount} />
-        <Dashboard cases={cases} notices={notices} />
+    <div className="flex flex-col gap-3">
+          <div className="flex flex-row gap-6">
+              <SummaryCard 
+                totalCases={casesData.total} 
+                gapCount={gapCases.length} 
+                noticeCount={notices.length} 
+                cardType="confirmed"
+              />
+              <SummaryCard 
+                  totalCases={casesData.total} 
+                  gapCount={gapCases.length} 
+                  noticeCount={notices.length} 
+                  cardType="gap"
+              />
+              <SummaryCard 
+                  totalCases={casesData.total} 
+                  gapCount={gapCases.length} 
+                  noticeCount={notices.length} 
+                  cardType="pending"
+              />
+          </div>
+            <SearchBar queueCount={queueCount} />
+            <Dashboard 
+                cases={casesData.cases} 
+                notices={notices}
+                currentPage={casesData.page}
+                totalPages={casesData.total_pages}
+            />
     </div>
   );
 }
