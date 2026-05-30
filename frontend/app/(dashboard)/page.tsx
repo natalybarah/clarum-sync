@@ -4,11 +4,18 @@ import SummaryCard from "@/components/summary-card";
 import Dashboard from "@/components/dashboard";
 import SearchBar from "@/components/search-bar";
 
-async function Home({searchParams}: {searchParams: Promise<{page?: string}>}) {
+async function Home({searchParams}: {
+  searchParams: Promise<{
+    query?: string;
+    page?: string;
+  }>
+}) {
 
   const resultSearchParams= await searchParams;
+  const query= resultSearchParams?.query || '';
   const currentPage= Number(resultSearchParams?.page) || 1
-  const casesData= await getCases(currentPage);
+  //casesData.cases is what access directly in the object fetch return response
+  const casesData= await getCases(currentPage, query);
   console.log("casesData:", casesData)
   const gapCases= await getGapCases();
   const notices= await getNotices();
@@ -43,6 +50,8 @@ async function Home({searchParams}: {searchParams: Promise<{page?: string}>}) {
                 notices={notices}
                 currentPage={casesData.page}
                 totalPages={casesData.total_pages}
+                totalCases={casesData.total}
+        
             />
     </div>
   );

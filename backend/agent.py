@@ -202,6 +202,7 @@ def insert_notice(hearing_info, confidence_score, confidence_reason, raw_notice_
                 "extracted_department": hearing_info["department"],
                 "extracted_judge": hearing_info["judge"],
                 "extracted_case_number": hearing_info["case_number"],
+                "extracted_type": hearing_info["hearing_type"],
                 "source": "pdf",
                 "raw_content": raw_notice_text,
                 "notice_status": notice_status,

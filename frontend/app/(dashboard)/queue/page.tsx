@@ -3,7 +3,7 @@ import { getGapCases, getNotices } from "@/lib/api";
 import { Case, Notice, Hearing} from "@/lib/types";
 import NoticeCard from "@/components/notice-card";
 import GapCard from "@/components/gap-card";
-
+import BackButton from "@/components/ui/back-button";
 
 type ExtendedGapCase = Case & {
     confidence: string,
@@ -27,6 +27,7 @@ const TodayQueue= async ()=>{
     console.log(gapCases, "GAP CASES")
     return(
         <div>
+            <BackButton/>
             <div>
                 <div >
 

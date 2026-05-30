@@ -24,7 +24,7 @@ const SortPopOver=({label, sortTypeOptions, currentSort, currentDirection, onSor
         <div tabIndex={0} onBlur={handleBlur} className="relative inline-flex ">
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-1.5 text-[12px] font-medium text-text-tertiary hover:text-text-primary"
+                className="flex items-center gap-1.5 text-[12px] font-medium text-text-tertiary transition-colors duration-150 hover:text-text-primary"
             >
                 {label}
                 <IconSelector className="w-3.5 h-3.5 text-text-muted" />
@@ -53,7 +53,7 @@ const SortPopOver=({label, sortTypeOptions, currentSort, currentDirection, onSor
 
                 {sortTypeOptions === "next_hearing" && (
                     <>
-                        <button onClick={() => onSort("next_hearing", "asc")} className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-bg-subtle text-left w-full ${currentSort === "next_hearing" && currentDirection === "asc" ? "bg-bg-subtle" : ""}`}>
+                        <button onClick={() => onSort("next_hearing", "asc")} className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-bg-subtle text-left w-full transition-colors duration-150${currentSort === "next_hearing" && currentDirection === "asc" ? "bg-bg-subtle" : ""}`}>
                             <div className={`w-3 h-3 rounded-full border flex items-center justify-center  ${currentSort === "next_hearing" && currentDirection === "asc" ? "border-text-primary bg-text-primary" : "border-text-muted"}`}>
                                 {currentSort === "next_hearing" && currentDirection === "asc" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                             </div>

@@ -1,9 +1,30 @@
+'use client'
 import { IconSearch } from "@tabler/icons-react"
 import Link from "next/link"
+import { useSearchParams, useRouter, usePathname } from "next/navigation"
+import { useDebouncedCallback } from "use-debounce"
 
-const SearchBar = ({ queueCount }: { queueCount: number }) => {
+const SearchBar = ({ queueCount, placeholder}: { queueCount: number, placeholder: string }) => {
+    const searchParams= useSearchParams();
+    const pathname= usePathname();
+    const {replace}= useRouter();
+
+    const handleSearch= useDebouncedCallback((term: string)=>{
+            const params= new URLSearchParams(searchParams.toString());
+            params.set("page", "1")
+            if(term){
+                params.set('query', term);
+            } else {
+                params.delete('query')
+            }
+            replace(`${pathname}?${params.toString()}`)
+            console.log(term)
+    }, 400)
+
     return (
         <div className="flex items-center gap-2.5 mb-4">
+
+            {/* Search bar by case name or case number */}
 
             <div className="flex-1 h-9 bg-bg-input border border-border-default rounded-md flex items-center gap-2 px-3">
                 <IconSearch className="text-text-muted w-4 h-4 shrink-0" />
@@ -11,8 +32,14 @@ const SearchBar = ({ queueCount }: { queueCount: number }) => {
                     type="text"
                     placeholder="Search by case name or case number"
                     className="bg-transparent text-[13px] text-text-secondary placeholder:text-text-muted outline-none w-full"
+                    onChange={(e)=>{ 
+                        handleSearch(e.target.value)
+                    }}
+                    defaultValue={searchParams.get('query')?.toString()}
                 />
             </div>
+
+            {/* Button to Today's Queue */}
 
             <Link href="/queue">
                 <button className="h-9 bg-brand-header text-[#E2E8F0] text-[12px] font-semibold px-3.5 rounded-md flex items-center gap-2 whitespace-nowrap cursor-pointer hover:opacity-90">

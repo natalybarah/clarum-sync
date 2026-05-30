@@ -17,7 +17,7 @@ const Pagination= ({currentPage, totalPages}: PaginationProps)=>{
         params.set("page", page.toString())
         router.push(`${pathname}?${params.toString()}`)
     }
-    const baseClassesIconContainer="w-7 h-7 flex items-center justify-center rounded border border-border-default text-text-muted hover:bg-bg-subtle disabled:opacity-30 disabled:cursor-not-allowed"
+    const baseClassesIconContainer="w-7 h-7 flex items-center justify-center rounded border border-border-default text-text-muted transition-colors duration-150  hover:bg-bg-subtle disabled:opacity-30 disabled:cursor-not-allowed"
 return(
 
     <div className="flex items-center justify-center gap-4 px-4 py-3 ">

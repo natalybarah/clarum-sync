@@ -3,7 +3,10 @@ import { formatDate, formatTime} from "@/lib/utils";
 import { Case, Hearing } from "@/lib/types";
 import { CaseType } from "./ui/case-type-badge";
 import { QueueIconButton, QueuePillButton } from "./ui/queue-button";
+import { verifyCase } from "@/lib/api";
+import { useRouter } from "next/navigation";
 import CaseTypeBadge from "./ui/case-type-badge";
+import SnoozeDropdown from "./snooze-dropdown";
 
 type ExtendedGapCase = Case & {
     confidence: string,
@@ -32,6 +35,7 @@ const urgencyStyles: Record<GapUrgency, string>={
 const GapCard=({gapCase}: {gapCase: ExtendedGapCase})=>{
     // Orders past hearings by descending order
    // const calcDaysFromLastHearing=()=>{
+        const router= useRouter()
          const pastHearings= gapCase.hearings.sort((a,b)=> {
             const elA= Date.parse(a.hearing_date)
             const elB= Date.parse(b.hearing_date)
@@ -41,8 +45,11 @@ const GapCard=({gapCase}: {gapCase: ExtendedGapCase})=>{
         const result = new Date().getTime() - Date.parse(pastHearings[0].hearing_date);
         const newResult= Math.floor(result / 1000 / 60 / 60 / 24)
         const status: GapUrgency= newResult > 90 ? "URGENT" : "REVIEW"
+        const handleVerifyCase= async()=>{
+            await verifyCase(gapCase.id);
+            router.refresh()
+        }
 
- 
 
     
     return(
@@ -73,9 +80,10 @@ const GapCard=({gapCase}: {gapCase: ExtendedGapCase})=>{
                     </div>
             </div>
             <div className="flex items-center gap-2 flex-0">
-                <QueuePillButton variant ="verify" onClick={()=> {}}/>
-                <QueueIconButton variant= "verify" onClick={()=>{}}/>
-                <QueueIconButton variant="reject" onClick={()=>{}}/>
+                <QueuePillButton variant ="check_docket" onClick={()=>window.open("https://www.lacourt.org", "_blank")}/>
+                <SnoozeDropdown caseId={gapCase.id}/>
+                {/*<QueueIconButton variant= "mark-verified" onClick={handleVerifyCase}/>
+                <QueueIconButton variant="reject" onClick={()=>{}}/>*/}
             </div>
         </div>
     )

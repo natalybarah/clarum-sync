@@ -16,7 +16,7 @@ const Dashboard=({cases, notices, currentPage, totalPages}: {
     return(
         <>
             <div className="bg-bg-page border-border-default border rounded-2xl margin-t-0">
-            <SortTable cases={cases} notices={notices} />
+                <SortTable cases={cases} notices={notices} />
             </div>
             <Pagination currentPage={currentPage} totalPages={totalPages}/>
         </>

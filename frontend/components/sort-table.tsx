@@ -11,7 +11,7 @@ import SortPopOver from "./sort-popover"
 export type SortType= 'status' | 'next_hearing' | 'no_hearing' | null
 export type SortDirection= 'desc' | 'asc' | 'pending' | null
 //NEED TO ADD CASE FOR PENDING
-const SortTable=({cases, notices}: {cases: Case[], notices: Notice[] })=>{
+const SortTable=({cases, notices}: {cases: Case[], notices: Notice[]})=>{
 
     const [sortType, setSortType]= useState<SortType>(null)
     const [sortDirection, setSortDirection] =useState<SortDirection>(null)
@@ -60,11 +60,11 @@ const SortTable=({cases, notices}: {cases: Case[], notices: Notice[] })=>{
     })
     
     const thBaseClasses= "text-text-tertiary text-[12px] font-medium font-sans text-left px-4 py-4 border-b border-border-default "
-    const tdBaseClasses = "px-4 py-2 border-b border-border-default"
+    const tdBaseClasses = "px-4 py-2 border-b border-border-default "
 
     return(
         <>
-        <table className=" w-full">
+        <table className=" w-full  ">
                 <thead>
                     <tr>
                         <th className={thBaseClasses}>CASE NAME</th>

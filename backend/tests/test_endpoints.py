@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from unittest.mock import MagicMock
 from fastapi.testclient import TestClient
 from main import app
 import copy
@@ -15,6 +16,8 @@ MOCK_CASES = [
         "status": "active",
         "phase": "Litigation",
         "county": "Los Angeles",
+        "snoozed_until": None,
+        "snoozed_by": None,
         "hearings": [
             {
                 "hearing_date": "2026-06-15",
@@ -62,6 +65,8 @@ MOCK_NOTICES = [
         "extracted_time": "13:00:00",
         "extracted_name": "Case Management Conference",
         "extracted_judge": "Hon. Lucy Lee",
+        "extracted_type": "CMC",
+        "extracted_department": "12",
         "confidence": "MEDIUM",
         "confidence_reason": "Missing optional fields",
         "cases": {
@@ -71,16 +76,22 @@ MOCK_NOTICES = [
     }
 ]
 
+
 # /-------------------------------------------------- Test Get Cases -----------------------------------------------------/
 
 def test_get_cases_returns_correct_structure():
     with patch("main.supabase") as mock_supabase:
+        # Mock total count of cases query
+        mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value.count= 18
+
+        # Mock filtered query
         mock_supabase.from_.return_value.select.return_value.eq.return_value.range.return_value.execute.return_value.data = MOCK_CASES_MAIN
         mock_supabase.from_.return_value.select.return_value.eq.return_value.range.return_value.execute.return_value.count = 1
         response = client.get("/cases")
         assert response.status_code == 200
         result = response.json()
         assert isinstance(result["cases"], list)
+        assert result["total"] == 18
         assert result["cases"][0]["last_hearing_date"] is not None
         assert result["cases"][0]["last_hearing_time"] is not None
         assert result["cases"][0]["last_hearing_name"] is not None
@@ -139,6 +150,8 @@ def test_get_cases_gap():
             "status": "active",
             "phase": "Discovery",
             "county": "Orange",
+            "snoozed_until": None, 
+            "snoozed_by": None,   
             "hearings": [
                 {**MOCK_CASES[0]["hearings"][0], "hearing_date": past_date, "is_confirmed": True}
             ]
@@ -161,4 +174,70 @@ def test_get_cases_gap():
         # Martinez case should not be in gaps since it has a future confirmed hearing
         case_names = [c["name"] for c in result]
         assert "Martinez v. Pacific Logistics" not in case_names
+
+# /-------------------------------------------------- Test Aprove Notice --------------------------------------------------------/
+def test_approve_notice():
+    with patch("main.supabase") as mock_supabase, \
+         patch("main.insert_hearing") as mock_insert_hearing:
+
+        notice_response = MagicMock()
+        notice_response.data = [MOCK_NOTICES[0]]
+
+        updated_response = MagicMock()
+        updated_response.data = [{**MOCK_NOTICES[0], "notice_status": "approved"}]
+
+        mock_supabase.from_.return_value.select.return_value.eq.return_value.execute.side_effect = [
+            notice_response,  
+        ]
+        mock_supabase.from_.return_value.update.return_value.eq.return_value.execute.return_value = updated_response
+        mock_supabase.table.return_value.select.return_value.eq.return_value.execute.return_value.data = [
+            {"id": "fake-case-uuid", "case_number": "23STCV16901"}
+        ]
+
+        response = client.patch(f"/notices/{MOCK_NOTICES[0]['id']}/approve")
+        assert response.status_code == 200
+        mock_insert_hearing.assert_called_once()
+
+
+# /------------------------------------------------------- Test Reject Notice --------------------------------------------------/
+
+def test_reject_notice():
+    with patch("main.supabase") as mock_supabase:
+      
+        updated_response_data= [{**MOCK_NOTICES[0], "notice_status": "rejected"}]
+
+        mock_supabase.from_.return_value.update.return_value.eq.return_value.execute.return_value = [updated_response_data]
+
+        response = client.patch(f"/notices/{MOCK_NOTICES[0]['id']}/reject")
+        assert response.status_code == 200
+        assert response.json()["message"]== "Notice has been sucessfully rejected"
+
+# /--------------------------------------------------------- Test Manual Verify Case  ---------------------------------------------/
+
+def test_verify_case():
+    with patch("main.supabase") as mock_supabase:
+        
+        updated_response_data= [{**MOCK_CASES[0], "id": "fake-uuid", "last_verified_at": "2026-05-28T19:00:00", "verified_by": "NB"}]
+
+        mock_supabase.from_.return_value.update.return_value.eq.return_value.execute.return_value = [updated_response_data]
+
+        response= client.patch(f"/cases/fake-uuid/verify")
+        assert response.status_code == 200
+        assert response.json()["message"]== "case has been verified sucessfully"
+
+# /------------------------------------------------------------ Test Snooze Case -------------------------------------------------/
+
+def test_snooze_case():
+    with patch("main.supabase") as mock_supabase:
+        mock_supabase.from_.return_value.update.return_value.eq.return_value.execute.return_value.data = [
+             {"id": "fake-uuid", "snoozed_until": "2026-06-27T19:00:00", "snoozed_by": "NB"}
+        ]
+
+        response = client.patch(f"/cases/fake-uuid/snooze?snooze_days=30")
+        assert response.status_code == 200
+        assert response.json()["message"] == "Case snoozed for 30 days"
+
+
+        
+
 

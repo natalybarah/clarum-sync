@@ -1,14 +1,19 @@
 
 import Image from "next/image";
 import ClarumLogo from "@/assets/logoclar.png"
+import Link from "next/link";
 
 const Header= ()=>{
+
+
     return(
         <header className="h-13 flex items-center justify-between px-6 bg-brand-header ">
-            <div className="flex flex-column items-center">
+            <Link href={"/"}>
+                <div className="flex flex-column items-center cursor-pointer">
                 <Image src={ClarumLogo} alt="clarum logo" height={64} width={64}/>
                 <span className="text-text-on-dark-primary font-semibold text-[15px] tracking-tight font-sans">Clarum Sync</span>
             </div>
+            </Link>
             <div className="flex flex-column gap-7 items-center">
                 <div className="flex items-center gap-1.5 bg-white/5 border border-white/[0.07] rounded-full px-2.5 py-1 text-[12px] text-text-on-dark-primary font-medium">
                     <span className="w-1.75 h-1.75 rounded-full bg-confirmed-solid inline-block" />

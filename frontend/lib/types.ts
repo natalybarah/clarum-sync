@@ -39,7 +39,8 @@ export type Notice = {
   extracted_date: string
   extracted_time: string
   extracted_name: string
-  extracted_judge: string
+  extracted_judge: string,
+  extracted_type:string
   confidence: string
   confidence_reason: string,
   court: string,

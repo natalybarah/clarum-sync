@@ -4,6 +4,10 @@ import { Notice } from "@/lib/types";
 import { CaseType } from "./ui/case-type-badge";
 import CaseTypeBadge from "./ui/case-type-badge";
 import { formatDate, formatTime } from "@/lib/utils";
+import { confirmNotice, rejectNotice, verifyCase } from "@/lib/api";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import ManualEntryPanel from "./manual-entry-panel";
 
 type ConfidenceVariant = "MEDIUM" | "LOW"
 
@@ -15,6 +19,18 @@ const confidenceStyles: Record<ConfidenceVariant, string>={
 
 
 const NoticeCard= ({notice}: {notice: Notice})=>{
+    const [showPanel, setShowPanel] = useState<boolean>(false)
+
+    const router= useRouter()
+    const handleConfirm= async()=>{
+        await confirmNotice(notice.id);
+        router.refresh()
+    }
+
+    const handleReject= async()=>{
+        await rejectNotice(notice.id);
+        router.refresh()
+    }
     const confidence= notice.confidence as ConfidenceVariant
 
     return(
@@ -47,14 +63,21 @@ const NoticeCard= ({notice}: {notice: Notice})=>{
             <div className="flex items-center gap-2 flex-0">
                 {confidence === "MEDIUM" ? (
                     <>
-                        <QueuePillButton variant="confirm" onClick={()=>{}}/>
+                        <QueuePillButton variant="confirm" onClick={handleConfirm}/>
                         <QueueIconButton variant="edit"onClick={()=>{}}/>
-                        <QueueIconButton variant="reject" onClick={()=>{}}/>
+                        <QueueIconButton variant="reject" onClick={handleReject}/>
                     </>
                 ) : (
                     <>
-                        <QueuePillButton variant="manual"onClick={()=>{}} />
-                        <QueueIconButton variant="reject" onClick={()=>{}}/> 
+                        <QueuePillButton variant="manual"onClick={()=>{setShowPanel(true)}} />
+                            {showPanel && (
+                                <ManualEntryPanel
+                                    notice={notice}
+                                    isOpen={showPanel}
+                                    onClose={()=> setShowPanel(false)}
+                                    />
+                            )}
+                        <QueueIconButton variant="reject" onClick={handleReject}/> 
                     </>
                 )}
 

@@ -7,6 +7,9 @@ import { formatDate, formatTime } from "@/lib/utils"
 import CaseTypeBadge from "./ui/case-type-badge"
 import Badge from "./ui/badge"
 import ActionButton from "./ui/action-button"
+import { confirmNotice, rejectNotice, verifyCase } from "@/lib/api"
+import { useRouter } from "next/navigation"
+import ManualEntryPanel from "./manual-entry-panel"
 
 type ExpandableRowProps = {
     c: Case
@@ -16,7 +19,19 @@ type ExpandableRowProps = {
 }
 
 const ExpandableRow = ({ c, pendingNotice, caseVariant, tdBaseClasses }: ExpandableRowProps) => {
-    const [isExpanded, setIsExpanded] = useState(false)
+    const [isExpanded, setIsExpanded] = useState<boolean>(false)
+    const [showPanel, setShowPanel]= useState<boolean>(false)
+    const router=useRouter()
+
+    const handleConfirm= async(noticeId:string) =>{
+        await confirmNotice(noticeId)
+        router.refresh()
+    }
+
+    const handleReject= async(noticeId: string) =>{
+        await rejectNotice(noticeId)
+        router.refresh()
+    }
 
     return (
         <>
@@ -24,7 +39,7 @@ const ExpandableRow = ({ c, pendingNotice, caseVariant, tdBaseClasses }: Expanda
             <tr
                 key={c.id}
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="cursor-pointer hover:bg-bg-subtle"
+                className="cursor-pointer transition-colors duration-100 hover:bg-bg-subtle"
             >
                 <td className={tdBaseClasses}>
                     <div className="flex flex-col gap-0.5">
@@ -126,16 +141,24 @@ const ExpandableRow = ({ c, pendingNotice, caseVariant, tdBaseClasses }: Expanda
                                         <div className="flex items-center gap-2 pt-1">
                                             {pendingNotice.confidence === "MEDIUM" ? (
                                                 <>
-                                                    <QueuePillButton variant="confirm" onClick={() => {}} />
+                                                    <QueuePillButton variant="confirm" onClick={() => handleConfirm(pendingNotice.id)} />
                                                     <QueueIconButton variant="edit" onClick={() => {}} />
-                                                    <QueueIconButton variant="reject" onClick={() => {}} />
+                                                    <QueueIconButton variant="reject" onClick={() => handleReject(pendingNotice.id)}/>
                                                 </>
                                             ) : (
                                                 <>
-                                                    <QueuePillButton variant="manual" onClick={() => {}} />
-                                                    <QueueIconButton variant="reject" onClick={() => {}} />
+                                                    <QueuePillButton variant="manual" onClick={() => setShowPanel(true)} />
+                                                    <QueueIconButton variant="reject" onClick={() => handleReject(pendingNotice.id)} />
                                                 </>
                                             )}
+                                            {showPanel && pendingNotice && (
+                                                <ManualEntryPanel
+                                                    notice={pendingNotice}
+                                                    isOpen={showPanel}
+                                                    onClose={()=> setShowPanel(false)}
+                                                />
+                                            )}     
+                                            
                                         </div>
                                     </div>
                                 ) : (
