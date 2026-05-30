@@ -50,7 +50,7 @@ async function Home({searchParams}: {
                 notices={notices}
                 currentPage={casesData.page}
                 totalPages={casesData.total_pages}
-                totalCases={casesData.total}
+             
         
             />
     </div>

@@ -1,11 +1,7 @@
 'use client'
 import { useState } from "react"
-import { formatDate } from "@/lib/utils"
 import { Case, Notice } from "@/lib/types"
-import CaseTypeBadge from "./ui/case-type-badge"
-import ActionButton from "./ui/action-button"
 import ExpandableRow from "./expandable-row"
-import Badge from "./ui/badge"
 import SortPopOver from "./sort-popover"
 
 export type SortType= 'status' | 'next_hearing' | 'no_hearing' | null

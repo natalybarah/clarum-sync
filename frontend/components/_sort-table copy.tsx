@@ -1,4 +1,4 @@
-'use client'
+/*'use client'
 import { useState } from "react"
 import { formatDate } from "@/lib/utils"
 import { Case, Notice } from "@/lib/types"
@@ -31,9 +31,7 @@ const SortTable=({cases, notices}: {cases: Case[], notices: Notice[] })=>{
             const statusOrder={urgent: 0, pending: 1, confirmed: 2}
             const statusA= statusOrder[getCaseStatus(a)];
             const statusB= statusOrder[getCaseStatus(b)];
-            /*
-
-            */
+          
 
             if(sortDirection === "asc") return statusA - statusB
           
@@ -69,7 +67,7 @@ const SortTable=({cases, notices}: {cases: Case[], notices: Notice[] })=>{
                     <tr>
                         <th className={thBaseClasses}>CASE NAME</th>
                         <th className={thBaseClasses}>LAST HEARING</th>
-                       { /*<IconSelector/>*/}
+             
                         <th className={thBaseClasses}>
                             <SortPopOver
                                 label="NEXT HEARING"
@@ -146,3 +144,4 @@ const SortTable=({cases, notices}: {cases: Case[], notices: Notice[] })=>{
 }
 
 export default SortTable;
+*/

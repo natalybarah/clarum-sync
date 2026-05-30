@@ -1,5 +1,5 @@
 'use client'
-import { useState } from "react"
+import { ReactEventHandler, useState } from "react"
 import { SortType, SortDirection } from "./sort-table"
 import { IconSelector } from "@tabler/icons-react"
 
@@ -12,7 +12,7 @@ type SortPopOverType= {
 }
 const SortPopOver=({label, sortTypeOptions, currentSort, currentDirection, onSort}: SortPopOverType)=>{
     const [isOpen, setIsOpen] = useState<boolean>(false)
-    const handleBlur=(e)=>{
+    const handleBlur=(e: React.FocusEvent<HTMLDivElement>)=>{
         if(!e.currentTarget.contains(e.relatedTarget)){
             setIsOpen(false)
         }

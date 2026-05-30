@@ -4,7 +4,7 @@ import { Case, Notice } from "@/lib/types"
 import { IconChevronDown, IconChevronRight } from "@tabler/icons-react"
 import { QueuePillButton, QueueIconButton } from "./ui/queue-button"
 import { formatDate, formatTime } from "@/lib/utils"
-import CaseTypeBadge from "./ui/case-type-badge"
+import CaseTypeBadge, { CaseType } from "./ui/case-type-badge"
 import Badge from "./ui/badge"
 import ActionButton from "./ui/action-button"
 import { confirmNotice, rejectNotice, verifyCase } from "@/lib/api"
@@ -49,7 +49,7 @@ const ExpandableRow = ({ c, pendingNotice, caseVariant, tdBaseClasses }: Expanda
                                 : <IconChevronRight className="w-3.5 h-3.5 text-text-muted flex-0" />
                             }
                             <span className="text-text-primary text-[14px] font-medium">{c.name}</span>
-                            <CaseTypeBadge variant={c.case_type} />
+                            <CaseTypeBadge variant={c.case_type as CaseType} />
                         </div>
                         <span className="text-[12px] text-text-muted font-mono pl-5">{c.case_number}</span>
                     </div>

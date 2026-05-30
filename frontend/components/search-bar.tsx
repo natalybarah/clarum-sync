@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import { useDebouncedCallback } from "use-debounce"
 
-const SearchBar = ({ queueCount, placeholder}: { queueCount: number, placeholder: string }) => {
+const SearchBar = ({ queueCount}: { queueCount: number}) => {
     const searchParams= useSearchParams();
     const pathname= usePathname();
     const {replace}= useRouter();

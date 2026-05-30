@@ -1,22 +1,3 @@
-
-
-/*
-
-.cb-class{background:var(--purple-3);color:var(--purple-11);border:1px solid var(--purple-6);}
-.cb-paga {background:var(--amber-3); color:var(--amber-11); border:1px solid var(--amber-6);}
-.cb-feha {background:var(--sky-3);   color:var(--sky-11);   border:1px solid var(--sky-6);}
-.cb-ret  {background:var(--tomato-3);color:var(--tomato-11);border:1px solid var(--tomato-6);}
-.cb-wt   {background:var(--s3);      color:var(--s11);      border:1px solid var(--s6);}
-
-.cb-class{background:var(--purple-3);color:var(--purple-11);border:1px solid var(--purple-6);}
-.cb-paga {background:var(--amber-3); color:var(--amber-11); border:1px solid var(--amber-6);}
-.cb-feha {background:var(--sky-3);   color:var(--sky-11);   border:1px solid var(--sky-6);}
-.cb-ret  {background:var(--tomato-3);color:var(--tomato-11);border:1px solid var(--tomato-6);}
-.cb-wt   {background:var(--s3);      color:var(--s11);      border:1px solid var(--s6);}
-
-  /* ── AI Extracted / Info (Sky) ── */
-
-
 export type CaseType = "FEHA" | "PAGA" | "Class" | "Wrongful Termination" | "Retaliation"
 
 const caseTypeStyles: Record<CaseType, { container: string, text: string }> = {
