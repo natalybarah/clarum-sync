@@ -80,5 +80,6 @@ export const snoozeCase= async(case_id: string, snooze_days: number)=>{
     return message
 }
 
-/* ------------------------------------------------ Manual Notice approval and Hearing insert ---------------------------------*/
+/* ------------------------------------------------ Process Emails  ---------------------------------*/
+
 

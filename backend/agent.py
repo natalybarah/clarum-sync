@@ -1,6 +1,7 @@
 import os 
 import json
 from openai import OpenAI 
+import re
 from pydantic import BaseModel
 from typing import Literal, Optional
 from datetime import datetime, date
@@ -26,7 +27,23 @@ class HearingInfo(BaseModel):
     department: Optional[str]
     judge: Optional[str]
     case_number: Optional[str]
+    case_name: Optional[str]
+    case_type: Optional[Literal["Class", "PAGA", "FEHA", "Wrongful Termination", "Retaliation", "Indi"]]
     court: Optional[str]
+
+# /------------------------------------------------Helper function to normalize case name -------------------------------------/
+
+def normalize_case_name(name: str) -> str:
+   
+    name = name.lower()
+    name = re.sub(r'\bv\.?\b|\bvs\.?\b|\bversus\b', 'v', name)
+    name = re.sub(r',?\s*et al\.?', '', name)
+    name = re.sub(r',?\s*inc\.?', '', name)
+    name = re.sub(r',?\s*llc\.?', '', name)
+    name = re.sub(r',?\s*corp\.?', '', name)
+    name = re.sub(r'\s+', ' ', name).strip()
+    return name
+
 
 # /----------------------------------------------- Test data ----------------------------------------------------------------/
 
@@ -80,6 +97,14 @@ case_number:
 - Look for labels like "CASE NO.", "Case Number:", "No."
 court:
 - Full name of the court
+case_name:
+- Full case name as written (e.g. "Smith v. Acme Corp")
+- Include party suffixes if present (Inc, LLC, et al)
+case_type:
+- Infer from context: Class action, PAGA, FEHA, etc.
+- Look for keywords like "Class Action", "Class", "PAGA notice", "PAGA",  "FEHA complaint", "Sexual harrasment".
+"Sexual harrasment cases are indi cases", "Indi"
+- If you can't determine confidently, leave as null
 If a field cannot be found after careful reading, return null.
 Do not guess or infer — only extract what is explicitly stated.
 """
@@ -169,56 +194,115 @@ def insert_hearing(confidence_score, is_confirmed, result, find_case_id, notice_
 
 # /----------------------------------------------------- Insert Notice ----------------------------------------------------/
 
-def insert_notice(hearing_info, confidence_score, confidence_reason, raw_notice_text):
+def insert_notice(hearing_info, confidence_score, confidence_reason, raw_notice_text, email_id = None):
+
 
     notice_status= "pending"
+    matched_case_ids = []
+    case_id = None
 
-    # Finds the corresponding case of the hearing
+    case_number = hearing_info.get("case_number")
+    case_name = hearing_info.get("case_name")
+    case_type = hearing_info.get("case_type")
 
-    find_case_id= (
-        supabase.table("cases")
-        .select("case_number", "id")
-        .eq("case_number", hearing_info["case_number"])
-        .execute()
-    )
+    if case_number:
+        result = (
+            supabase.table("cases")
+            .select("id, name, case_number")
+            .eq("case_number", case_number)
+            .execute()
+        )
+        if result.data:
+            case_id = result.data[0]["id"]
+            matched_case_ids = [case_id]
 
-    # Return if a case is not found for the notice. A notice can't be saved to database without a corresponding case
+    # Attempt 2-  Fuzzy name match + case_type filter
+    if not case_id and case_name and case_type:
+        normalized = normalize_case_name(case_name)
+        result = (
+            supabase.table("cases")
+            .select("id, name, case_number, case_type")
+            .ilike("name", f"%{normalized}%")
+            .eq("case_type", case_type)
+            .execute()
+        )
+        if result.data and len(result.data) == 1:
+            case_id = result.data[0]["id"]
+            matched_case_ids = [case_id]
 
-    if not find_case_id.data:
-        return
 
-    # When confidence is HIGH, the notice_status is automatically updated to auto saved
 
-    if confidence_score == "HIGH":
+
+    # Attempt 3 — Fuzzy name match only (may return multiple)
+
+    if not case_id and case_name:
+        normalized = normalize_case_name(case_name)
+        result = (
+            supabase.table("cases")
+            .select("id, name, case_number, case_type")
+            .ilike("name", f"%{normalized}%")
+            .execute()
+        )
+        if result.data:
+            if len(result.data) == 1:
+                case_id = result.data[0]["id"]
+                matched_case_ids = [case_id]
+            else:
+                # Multiple matches — needs human disambiguation
+                notice_status = "ambiguous"
+                matched_case_ids = [c["id"] for c in result.data]
+    
+
+    # If nothing matched
+    if not case_id and not matched_case_ids:
+        notice_status = "unmatched"
+
+
+    if confidence_score == "HIGH" and case_id and notice_status not in ["ambiguous", "unmatched"]:
         notice_status = "auto_saved"
 
     # Insert a notice to database with its linked case 
 
     response = (
         supabase.table("notices")
-        .insert({"extracted_date": hearing_info["hearing_date"], 
-                "extracted_time": hearing_info["hearing_time"],
-                "extracted_name": hearing_info["hearing_name"],
-                "extracted_department": hearing_info["department"],
-                "extracted_judge": hearing_info["judge"],
-                "extracted_case_number": hearing_info["case_number"],
-                "extracted_type": hearing_info["hearing_type"],
-                "source": "pdf",
-                "raw_content": raw_notice_text,
-                "notice_status": notice_status,
-                "confidence": confidence_score,
-                "court": hearing_info["court"],
-                "case_id": find_case_id.data[0]["id"],
-                "confidence_reason": confidence_reason
-                })
+        .insert({ 
+            "extracted_date": hearing_info["hearing_date"],
+            "extracted_time": hearing_info["hearing_time"],
+            "extracted_name": hearing_info["hearing_name"],
+            "extracted_department": hearing_info["department"],
+            "extracted_judge": hearing_info["judge"],
+            "extracted_case_number": case_number,
+            "extracted_case_name": case_name,
+            "extracted_type": hearing_info["hearing_type"],
+            "source": "pdf",
+            "raw_content": raw_notice_text,
+            "notice_status": notice_status,
+            "confidence": confidence_score,
+            "court": hearing_info.get("court"),
+            "case_id": case_id,
+            "matched_case_ids": matched_case_ids,
+            "confidence_reason": confidence_reason,
+            "email_id": email_id
+        })
         .execute()
     )
 
     # When confidence is HIGH insert a hearing to the tables hearing
     # Insert hearing receives the notice id returned from a notice insert 
 
-    if confidence_score == "HIGH":
-        insert_hearing(confidence_score, True, hearing_info, find_case_id, response.data[0]["id"])
+    if confidence_score == "HIGH" and case_id and notice_status == "auto_saved":
+        # Build result dict for insert_hearing
+        result_for_hearing = {
+            "hearing_date": hearing_info["hearing_date"],
+            "hearing_time": hearing_info["hearing_time"],
+            "hearing_name": hearing_info["hearing_name"],
+            "hearing_type": hearing_info["hearing_type"],
+            "department": hearing_info["department"],
+            "judge": hearing_info["judge"],
+            "court": hearing_info.get("court")
+        }
+        case_lookup = supabase.table("cases").select("case_number, id").eq("id", case_id).execute()
+        insert_hearing(confidence_score, True, result_for_hearing, case_lookup, response.data[0]["id"])
 
 
 # /------------------------------------------------ Function call -------------------------------------------------------------/
