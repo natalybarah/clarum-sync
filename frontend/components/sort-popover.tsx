@@ -32,7 +32,7 @@ const SortPopOver=({label, sortTypeOptions, currentSort, currentDirection, onSor
 
             
            {isOpen && (
-                <div className="absolute top-full left-0 mt-1.5 z-50 bg-bg-card border border-border-default rounded-lg shadow-sm min-w-47 p-1.5 flex flex-col gap-0.5">
+                <div className="absolute  top-full left-0 mt-1.5 z-50 bg-bg-card border border-border-default rounded-lg shadow-sm min-w-47 p-1.5 flex flex-col gap-0.5">
 
                     {sortTypeOptions === "status" && (
                         <>

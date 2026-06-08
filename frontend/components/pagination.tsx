@@ -20,7 +20,7 @@ const Pagination= ({currentPage, totalPages}: PaginationProps)=>{
     const baseClassesIconContainer="w-7 h-7 flex items-center justify-center rounded border border-border-default text-text-muted transition-colors duration-150  hover:bg-bg-subtle disabled:opacity-30 disabled:cursor-not-allowed"
 return(
 
-    <div className="flex items-center justify-center gap-4 px-4 py-3 ">
+    <div className="flex items-center justify-center gap-4 px-4 py-3  ">
         <span className="text-[12px] text-text-muted">
            Page {currentPage} of {totalPages}
         </span>
@@ -30,7 +30,7 @@ return(
             <button 
                 onClick={()=>goToPage(1)} 
                 disabled={currentPage === 1} 
-                className={baseClassesIconContainer}
+                className={`${baseClassesIconContainer}  cursor-pointer  `}
             >
                 <IconChevronsLeft className="w-3.5 h-3.5"/>
             </button>
@@ -38,7 +38,7 @@ return(
             <button 
                 onClick={()=>goToPage(currentPage - 1)} 
                 disabled={currentPage === 1 } 
-                className={baseClassesIconContainer}
+                className={`${baseClassesIconContainer}  cursor-pointer  `}
             >
                 <IconChevronLeft className="w-3.5 h-3.5"/>
             </button>
@@ -46,15 +46,15 @@ return(
             <button 
                 onClick={()=>goToPage(currentPage + 1 )} 
                 disabled={currentPage === totalPages} 
-                className={baseClassesIconContainer}
+                className={`${baseClassesIconContainer}  cursor-pointer  `}
             >
-                <IconChevronRight className="w-3.5 h-3.5"/>
+                <IconChevronRight className="w-3.5 h-3.5 cursor-pointer   "/>
             </button>
             {/*Go to last page  */}
             <button 
                 onClick={()=>goToPage(totalPages)} 
                 disabled={currentPage === totalPages} 
-                className={baseClassesIconContainer}
+                className={`${baseClassesIconContainer}  cursor-pointer  `}
             >
                 <IconChevronsRight className="w-3.5 h-3.5"/>
             </button>

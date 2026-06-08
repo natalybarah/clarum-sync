@@ -205,6 +205,8 @@ def insert_notice(hearing_info, confidence_score, confidence_reason, raw_notice_
     case_name = hearing_info.get("case_name")
     case_type = hearing_info.get("case_type")
 
+    # Attempt 1 - Case number match
+
     if case_number:
         result = (
             supabase.table("cases")
@@ -257,6 +259,19 @@ def insert_notice(hearing_info, confidence_score, confidence_reason, raw_notice_
     if not case_id and not matched_case_ids:
         notice_status = "unmatched"
 
+    if case_id and hearing_info.get("hearing_date"):
+        existing = (
+            supabase.table("notices")
+            .select("id, notice_status")
+            .eq("case_id", case_id)
+            .eq("extracted_date", hearing_info["hearing_date"])
+            .eq("extracted_time", hearing_info.get("hearing_time"))
+            .execute()
+        )
+
+        if existing.data:
+            return
+    
 
     if confidence_score == "HIGH" and case_id and notice_status not in ["ambiguous", "unmatched"]:
         notice_status = "auto_saved"
@@ -303,6 +318,8 @@ def insert_notice(hearing_info, confidence_score, confidence_reason, raw_notice_
         }
         case_lookup = supabase.table("cases").select("case_number, id").eq("id", case_id).execute()
         insert_hearing(confidence_score, True, result_for_hearing, case_lookup, response.data[0]["id"])
+
+
 
 
 # /------------------------------------------------ Function call -------------------------------------------------------------/

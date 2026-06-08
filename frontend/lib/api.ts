@@ -82,4 +82,59 @@ export const snoozeCase= async(case_id: string, snooze_days: number)=>{
 
 /* ------------------------------------------------ Process Emails  ---------------------------------*/
 
+export const processEmails= async()=>{
+    const response= await fetch(`${FAST_API_URL}/emails/process`, {
+        method: 'POST',
+        cache: 'no-store'
+    })
 
+    if (!response.ok) throw new Error(`Failed to process emails: ${response.status}`)
+    return response.json()
+}/*
+    return {
+        "today": {
+            "date": today.isoformat(),
+            "hearings": today_hearings,
+            "outlook_only": today_outlook_only
+        },
+        "tomorrow": {
+            "date": tomorrow.isoformat(),
+            "hearings": tomorrow_hearings,
+            "outlook_only": tomorrow_outlook_only
+        },
+        "this_week": {
+            "end_date": end_of_week.isoformat(),
+            "hearings": this_week_hearings,
+            "outlook_only": week_outlook_only
+        }
+    }
+*/
+
+/* ----------------------------------------------------- My Day Endpoint ---------------------------------------------------- */
+
+export const getMyDay= async ()=>{
+    const response= await fetch(`${FAST_API_URL}/my-day`, {cache: 'no-store'})
+    if (!response.ok) throw new Error(`Failed.  ${response.status} an error ocurred fetching my day information`)
+    return response.json()
+}
+
+
+/* -----------------------------------------------------Create hearing endpoint for only outlook events ---------------------- */
+export const createHearing = async (hearing: {
+    hearing_date: string
+    hearing_time: string
+    hearing_name?: string
+    hearing_type?: string
+    department?: string
+    judge?: string
+    case_id: string
+}) => {
+    const response = await fetch(`${FAST_API_URL}/hearings`, {
+        method: 'POST',
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(hearing)
+    })
+    if (!response.ok) throw new Error(`Failed to create hearing: ${response.status}`)
+    return response.json()
+}

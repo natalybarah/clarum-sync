@@ -10,6 +10,9 @@ import ActionButton from "./ui/action-button"
 import { confirmNotice, rejectNotice, verifyCase } from "@/lib/api"
 import { useRouter } from "next/navigation"
 import ManualEntryPanel from "./manual-entry-panel"
+import SnoozeDropdown from "./snooze-dropdown"
+import { useDemoGuard } from "@/lib/use-demo-guard"
+import DemoToast from "./ui/demo-toast"
 
 type ExpandableRowProps = {
     c: Case
@@ -19,27 +22,33 @@ type ExpandableRowProps = {
 }
 
 const ExpandableRow = ({ c, pendingNotice, caseVariant, tdBaseClasses }: ExpandableRowProps) => {
+    const { guardAction, showToast, setShowToast } = useDemoGuard()
     const [isExpanded, setIsExpanded] = useState<boolean>(false)
     const [showPanel, setShowPanel]= useState<boolean>(false)
     const router=useRouter()
 
-    const handleConfirm= async(noticeId:string) =>{
-        await confirmNotice(noticeId)
-        router.refresh()
+    const handleConfirm = async (noticeId: string) => {
+        guardAction(async () => {
+            await confirmNotice(noticeId)
+            router.refresh()
+        })
     }
 
-    const handleReject= async(noticeId: string) =>{
-        await rejectNotice(noticeId)
-        router.refresh()
+    const handleReject = async (noticeId: string) => {
+        guardAction(async () => {
+            await rejectNotice(noticeId)
+            router.refresh()
+        })
     }
 
-    return (
+    
+    return ( 
         <>
             {/* Main row */}
             <tr
                 key={c.id}
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="cursor-pointer transition-colors duration-100 hover:bg-bg-subtle"
+               
+                className=" transition-colors duration-100 hover:bg-bg-subtle"
             >
                 <td className={tdBaseClasses}>
                     <div className="flex flex-col gap-0.5">
@@ -72,7 +81,28 @@ const ExpandableRow = ({ c, pendingNotice, caseVariant, tdBaseClasses }: Expanda
                 </td>
 
                 <td className={tdBaseClasses} onClick={(e) => e.stopPropagation()}>
-                    <ActionButton variant={caseVariant} />
+                    {caseVariant === "urgent" ? (
+                        <span
+                            className="text-urgent-text text-sm cursor-pointer"
+                            onClick={() => setIsExpanded(!isExpanded)}
+                        >
+                            Resolve →
+                        </span>
+                    ) : caseVariant === "pending" ? (
+                        <span
+                            className="text-pending-text text-sm cursor-pointer"
+                            onClick={() => setIsExpanded(!isExpanded)}
+                        >
+                            Process →
+                        </span>
+                    ) : (
+                        <span
+                            className="text-text-secondary text-sm cursor-pointer hover:text-text-primary transition-colors"
+                            onClick={() => setIsExpanded(!isExpanded)}
+                        >
+                            View →
+                        </span>
+                    )}
                 </td>
             </tr>
 
@@ -100,71 +130,113 @@ const ExpandableRow = ({ c, pendingNotice, caseVariant, tdBaseClasses }: Expanda
                             </div>
 
                             {/*  AI Notice */}
-                            <div className="flex flex-col gap-3">
-                                <span className="text-[9px] font-bold uppercase tracking-widest text-text-muted">
-                                    {pendingNotice ? "AI Notice Detected · Needs Review" : "AI Notice"}
-                                </span>
-                                {pendingNotice ? (
-                                    <div className="flex flex-col gap-2 bg-bg-card border border-border-default rounded-lg p-3">
-                                        {/* Header */}
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-ai-bg border border-ai-border text-ai-text tracking-wider">AI EXTRACTED</span>
-                                            <span className="text-[11px] font-semibold text-text-primary">Court Notice Parsed</span>
-                                        </div>
+                           {/* Column 2 — Changes based on status */}
+<div className="flex flex-col gap-3">
+    {caseVariant === "urgent" ? (
+        <>
+            <span className="text-[9px] font-bold uppercase tracking-widest text-text-muted">
+                Gap Alert · No Hearing Scheduled
+            </span>
+            <div className="flex flex-col gap-2 bg-bg-card border border-border-default rounded-lg p-3">
+                {/* Warning */}
+                <div className="flex items-center gap-2">
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-urgent-bg border border-urgent-border text-urgent-text tracking-wider">
+                        NO HEARING IN 90 DAYS
+                    </span>
+                </div>
 
-                                        {/* Source */}
-                                        <div className="text-[9.5px] text-text-muted font-mono flex items-center gap-1">
-                                            📧 {pendingNotice.source}
-                                            <span className="text-border-default">·</span>
-                                            gpt-4o-mini
-                                        </div>
+                <p className="text-[11.5px] text-text-secondary leading-relaxed">
+                    This case has no confirmed hearing scheduled in the next 90 days. 
+                    Check the court docket or contact the clerk to verify.
+                </p>
 
-                                        {/* Extracted info */}
-                                        <div className="bg-bg-subtle border-l-[3px] border-pending-solid rounded-r-md px-3 py-2">
-                                            <div className="text-[12.5px] font-semibold text-text-primary">
-                                                {pendingNotice.extracted_name} · {formatDate(pendingNotice.extracted_date)} · {formatTime(pendingNotice.extracted_time)}
-                                            </div>
-                                            <div className="text-[10.5px] text-text-secondary mt-0.5">
-                                                {pendingNotice.extracted_department && `Dept. ${pendingNotice.extracted_department}`}
-                                            </div>
-                                        </div>
+                {/* Last hearing info if available */}
+                {c.last_hearing_date && (
+                    <div className="bg-bg-subtle border-l-[3px] border-urgent-solid rounded-r-md px-3 py-2">
+                        <div className="text-[11px] text-text-muted">Last hearing</div>
+                        <div className="text-[12.5px] font-semibold text-text-primary">
+                            {formatDate(c.last_hearing_date)} · {c.last_hearing_type}
+                        </div>
+                    </div>
+                )}
 
-                                        {/* Confidence */}
-                                        <div className="flex items-center gap-2">
-                                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded border ${pendingNotice.confidence === "MEDIUM" ? "bg-pending-bg border-pending-border text-pending-text" : "bg-urgent-bg border-urgent-border text-urgent-text"}`}>
-                                                {pendingNotice.confidence} confidence
-                                            </span>
-                                            <span className="text-[10px] text-text-muted italic">{pendingNotice.confidence_reason}</span>
-                                        </div>
+                {/* Actions */}
+                <div className="flex items-center gap-2 pt-1">
+                    <QueuePillButton
+                        variant="check_docket"
+                        onClick={() => window.open("https://www.lacourt.org", "_blank")}
+                    />
+                    <SnoozeDropdown caseId={c.id} />
+                </div>
+            </div>
+        </>
+    ) : (
+        <>
+            <span className="text-[9px] font-bold uppercase tracking-widest text-text-muted">
+                {pendingNotice ? "AI Notice Detected · Needs Review" : "AI Notice"}
+            </span>
+            {pendingNotice ? (
+                <div className="flex flex-col gap-2 bg-bg-card border border-border-default rounded-lg p-3">
+                    {/* Header */}
+                    <div className="flex items-center gap-2">
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-ai-bg border border-ai-border text-ai-text tracking-wider">AI EXTRACTED</span>
+                        <span className="text-[11px] font-semibold text-text-primary">Court Notice Parsed</span>
+                    </div>
 
-                                        {/* Actions */}
-                                        <div className="flex items-center gap-2 pt-1">
-                                            {pendingNotice.confidence === "MEDIUM" ? (
-                                                <>
-                                                    <QueuePillButton variant="confirm" onClick={() => handleConfirm(pendingNotice.id)} />
-                                                    <QueueIconButton variant="edit" onClick={() => {}} />
-                                                    <QueueIconButton variant="reject" onClick={() => handleReject(pendingNotice.id)}/>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <QueuePillButton variant="manual" onClick={() => setShowPanel(true)} />
-                                                    <QueueIconButton variant="reject" onClick={() => handleReject(pendingNotice.id)} />
-                                                </>
-                                            )}
-                                            {showPanel && pendingNotice && (
-                                                <ManualEntryPanel
-                                                    notice={pendingNotice}
-                                                    isOpen={showPanel}
-                                                    onClose={()=> setShowPanel(false)}
-                                                />
-                                            )}     
-                                            
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <span className="text-[12px] text-text-muted italic">No pending notices</span>
-                                )}
-                            </div>
+                    {/* Source */}
+                    <div className="text-[9.5px] text-text-muted font-mono flex items-center gap-1">
+                        📧 {pendingNotice.source}
+                        <span className="text-border-default">·</span>
+                        gpt-4o-mini
+                    </div>
+
+                    {/* Extracted info */}
+                    <div className="bg-bg-subtle border-l-[3px] border-pending-solid rounded-r-md px-3 py-2">
+                        <div className="text-[12.5px] font-semibold text-text-primary">
+                            {pendingNotice.extracted_name} · {formatDate(pendingNotice.extracted_date)} · {formatTime(pendingNotice.extracted_time)}
+                        </div>
+                        <div className="text-[10.5px] text-text-secondary mt-0.5">
+                            {pendingNotice.extracted_department && `Dept. ${pendingNotice.extracted_department}`}
+                        </div>
+                    </div>
+
+                    {/* Confidence */}
+                    <div className="flex items-center gap-2">
+                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded border ${pendingNotice.confidence === "MEDIUM" ? "bg-pending-bg border-pending-border text-pending-text" : "bg-urgent-bg border-urgent-border text-urgent-text"}`}>
+                            {pendingNotice.confidence} confidence
+                        </span>
+                        <span className="text-[10px] text-text-muted italic">{pendingNotice.confidence_reason}</span>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2 pt-1">
+                        {pendingNotice.confidence === "MEDIUM" ? (
+                            <>
+                                <QueuePillButton variant="confirm" onClick={() => handleConfirm(pendingNotice.id)} />
+                                <QueueIconButton variant="edit" onClick={() => {setShowPanel(true)}} />
+                                <QueueIconButton variant="reject" onClick={() => handleReject(pendingNotice.id)} />
+                            </>
+                        ) : (
+                            <>
+                                <QueuePillButton variant="manual" onClick={() => setShowPanel(true)} />
+                                <QueueIconButton variant="reject" onClick={() => handleReject(pendingNotice.id)} />
+                            </>
+                        )}
+                        {showPanel && pendingNotice && (
+                            <ManualEntryPanel
+                                notice={pendingNotice}
+                                isOpen={showPanel}
+                                onClose={() => setShowPanel(false)}
+                            />
+                        )}
+                    </div>
+                </div>
+            ) : (
+                <span className="text-[12px] text-text-muted italic">No pending notices</span>
+            )}
+        </>
+    )}
+</div>
 
                             {/* Column 3 — Audit Trail placeholder */}
                             <div className="flex flex-col gap-3">
@@ -181,3 +253,9 @@ const ExpandableRow = ({ c, pendingNotice, caseVariant, tdBaseClasses }: Expanda
 }
 
 export default ExpandableRow
+
+
+/*
+
+
+*/

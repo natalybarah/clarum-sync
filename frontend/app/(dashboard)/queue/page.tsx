@@ -4,6 +4,7 @@ import { Case, Notice, Hearing} from "@/lib/types";
 import NoticeCard from "@/components/notice-card";
 import GapCard from "@/components/gap-card";
 import BackButton from "@/components/ui/back-button";
+import SyncEmailsButton from "@/components/sync-emails-button";
 
 type ExtendedGapCase = Case & {
     confidence: string,
@@ -28,6 +29,7 @@ const TodayQueue= async ()=>{
     return(
         <div>
             <BackButton/>
+           {/* <SyncEmailsButton/>*/}
             <div>
                 <div >
 
@@ -35,7 +37,7 @@ const TodayQueue= async ()=>{
 
                     <div className="text-text-primary font-bold font-sans text-2xl mb-1 ">{`Today's queue`}</div>
                     <div className="flex flex-row gap-3" >
-                    <p className="text-text-secondary text-[14px]">{` ${todayDate} — ${totalItems} items need attention`}</p> 
+                        <p className="text-text-secondary text-[14px]">{` ${todayDate} — ${totalItems} items need attention`}</p> 
 
                         {/* Pending AI Notices header */}
 
@@ -47,10 +49,16 @@ const TodayQueue= async ()=>{
                     </div>
                 </div>
                 <div className="flex flex-row items-center flex-nowrap gap-3 mt-5 mb-3">
-                    <div className="text-text-secondary  text-[10px] tracking-wider font-medium text-nowrap">PENDING AI NOTICES </div>
-                    <div className="text-pending-text bg-pending-bg rounded-3xl px-1.5 py-0.5 text-[10px]">{pendingNotices.length}</div>
+                    <span className="text-[13px] font-bold text-text-primary tracking-wide uppercase text-nowrap">
+                    Pending AI Notices
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-pending-bg border border-pending-border text-pending-text">
+                        {pendingNotices.length}
+                    </span>
                     <div className="bg-text-muted/30 w-full h-[.90px] text-center "> </div>
                 </div>
+
+        
            
                     {pendingNotices.map((notice: Notice)=>(
                             <NoticeCard key={notice.id} notice={notice}/>
@@ -59,8 +67,12 @@ const TodayQueue= async ()=>{
                 {/* Gap alerts header */}
 
                 <div className="flex flex-row items-center flex-nowrap gap-3 mt-5 mb-3">
-                    <div className="text-text-secondary  text-[10px] tracking-wider font-medium text-nowrap">GAP ALERTS </div>
-                    <div className="text-pending-text bg-pending-bg rounded-3xl px-1.5 py-0.5 text-[10px]">{gapCases.length}</div>
+                    <span className="text-[13px] font-bold text-text-primary tracking-wide uppercase text-nowrap">
+                    GAP ALERTS
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-urgent-bg border border-urgent-border text-urgent-text">
+                        {gapCases.length}
+                    </span>
                     <p className="text-urgent-text  text-[10px] tracking-wider font-medium text-nowrap">NO HEARINGS IN 90 DAYS </p>
                     <div className="bg-text-muted/30 w-full h-[.90px] text-center "> </div>
                 </div>

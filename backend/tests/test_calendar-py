@@ -1,0 +1,87 @@
+from unittest.mock import patch, MagicMock
+from tests.conftest import client
+
+
+# ------------------------------------------  GET /my-day -----------------------------------------------------------
+
+def test_my_day_no_token():
+    """When no token exists, should return empty sections with token_valid=False"""
+    with patch("routes.calendar.supabase") as mock_supabase:
+        # Mock hearings query
+        mock_supabase.from_.return_value.select.return_value.gte.return_value.lte.return_value.eq.return_value.order.return_value.order.return_value.execute.return_value.data = []
+
+        # Mock all cases query
+        mock_supabase.from_.return_value.select.return_value.eq.return_value.execute.return_value.data = []
+
+        # Mock token query — no token
+        mock_supabase.table.return_value.select.return_value.order.return_value.limit.return_value.execute.return_value.data = []
+
+        response = client.get("/my-day")
+        assert response.status_code == 200
+        result = response.json()
+        assert result["token_valid"] == False
+        assert result["today"]["hearings"] == []
+        assert result["tomorrow"]["hearings"] == []
+        assert result["this_week"]["hearings"] == []
+
+
+def test_my_day_returns_correct_structure():
+    """Verify the response shape is correct"""
+    with patch("routes.calendar.supabase") as mock_supabase:
+        mock_supabase.from_.return_value.select.return_value.gte.return_value.lte.return_value.eq.return_value.order.return_value.order.return_value.execute.return_value.data = []
+        mock_supabase.from_.return_value.select.return_value.eq.return_value.execute.return_value.data = []
+        mock_supabase.table.return_value.select.return_value.order.return_value.limit.return_value.execute.return_value.data = []
+
+        response = client.get("/my-day")
+        assert response.status_code == 200
+        result = response.json()
+
+        # Check top-level structure
+        assert "token_valid" in result
+        assert "today" in result
+        assert "tomorrow" in result
+        assert "this_week" in result
+
+        # Check section structure
+        assert "date" in result["today"]
+        assert "hearings" in result["today"]
+        assert "outlook_only" in result["today"]
+
+
+def test_my_day_hearings_without_outlook():
+    """Hearings should show as not_in_outlook when no token"""
+    from datetime import date
+    import pytz
+
+    pacific = pytz.timezone("America/Los_Angeles")
+    today_str = date.today().isoformat()
+
+    mock_hearings = [
+        {
+            "id": "hearing-1",
+            "hearing_date": today_str,
+            "hearing_time": "09:00:00",
+            "hearing_name": "CMC",
+            "hearing_type": "CMC",
+            "department": "12",
+            "judge": "Hon. Rivera",
+            "case_id": "case-1",
+            "cases": {
+                "id": "case-1",
+                "name": "Martinez v. Pacific",
+                "case_number": "23STCV10234",
+                "case_type": "Class"
+            }
+        }
+    ]
+
+    with patch("routes.calendar.supabase") as mock_supabase:
+        mock_supabase.from_.return_value.select.return_value.gte.return_value.lte.return_value.eq.return_value.order.return_value.order.return_value.execute.return_value.data = mock_hearings
+        mock_supabase.from_.return_value.select.return_value.eq.return_value.execute.return_value.data = []
+        mock_supabase.table.return_value.select.return_value.order.return_value.limit.return_value.execute.return_value.data = []
+
+        response = client.get("/my-day")
+        assert response.status_code == 200
+        result = response.json()
+        assert len(result["today"]["hearings"]) == 1
+        assert result["today"]["hearings"][0]["sync_status"] == "not_in_outlook"

@@ -61,28 +61,28 @@ const NoticeCard= ({notice}: {notice: Notice})=>{
             </div>
 
             <div className="flex items-center gap-2 flex-0">
-                {confidence === "MEDIUM" ? (
-                    <>
-                        <QueuePillButton variant="confirm" onClick={handleConfirm}/>
-                        <QueueIconButton variant="edit"onClick={()=>{}}/>
-                        <QueueIconButton variant="reject" onClick={handleReject}/>
-                    </>
-                ) : (
-                    <>
-                        <QueuePillButton variant="manual"onClick={()=>{setShowPanel(true)}} />
-                            {showPanel && (
-                                <ManualEntryPanel
-                                    notice={notice}
-                                    isOpen={showPanel}
-                                    onClose={()=> setShowPanel(false)}
-                                    />
-                            )}
-                        <QueueIconButton variant="reject" onClick={handleReject}/> 
-                    </>
-                )}
+            {confidence === "MEDIUM" ? (
+                <>
+                    <QueuePillButton variant="confirm" onClick={handleConfirm}/>
+                    <QueueIconButton variant="edit" onClick={() => setShowPanel(true)}/>
+                    <QueueIconButton variant="reject" onClick={handleReject}/>
+                </>
+            ) : (
+                <>
+                    <QueuePillButton variant="manual" onClick={() => setShowPanel(true)}/>
+                    <QueueIconButton variant="reject" onClick={handleReject}/>
+                </>
+            )}
+        </div>
 
-            </div>
-
+       
+        {showPanel && (
+            <ManualEntryPanel
+                notice={notice}
+                isOpen={showPanel}
+                onClose={() => setShowPanel(false)}
+            />
+        )}
         </div>
     )
 }

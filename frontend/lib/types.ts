@@ -50,3 +50,74 @@ export type Notice = {
     case_type: string
   }
 }
+/*
+   return {
+        "today": {
+            "date": today.isoformat(),
+            "hearings": today_hearings,
+            "outlook_only": today_outlook_only
+        },
+        "tomorrow": {
+            "date": tomorrow.isoformat(),
+            "hearings": tomorrow_hearings,
+            "outlook_only": tomorrow_outlook_only
+        },
+        "this_week": {
+            "end_date": end_of_week.isoformat(),
+            "hearings": this_week_hearings,
+            "outlook_only": week_outlook_only
+        }
+    }*/
+
+export type SyncStatus = 
+    | "synced" 
+    | "not_in_outlook" 
+    | "in_outlook_only" 
+    | "date_mismatch" 
+    | "time_mismatch" 
+    | "vacated_in_outlook" 
+    | "continued_in_outlook"
+
+export type MyDayHearing = {
+    id: string
+    hearing_date: string
+    hearing_time: string
+    hearing_name: string
+    hearing_type: string
+    department: string
+    judge: string
+    case_id: string
+    cases: {
+        id: string
+        name: string
+        case_number: string
+        case_type: string
+    }
+    sync_status: SyncStatus
+    outlook_date: string | null
+    outlook_time: string | null
+    outlook_subject: string | null
+}
+
+export type OutlookOnlyEvent = {
+    outlook_id: string
+    subject: string
+    outlook_date: string
+    outlook_time: string
+    sync_status: "in_outlook_only",
+    case_id: string | null  
+}
+
+export type MyDaySection = {
+    date?: string
+    end_date?: string
+    hearings: MyDayHearing[]
+    outlook_only: OutlookOnlyEvent[]
+}
+
+export type MyDayData = {
+    token_valid: boolean,
+    today: MyDaySection
+    tomorrow: MyDaySection
+    this_week: MyDaySection
+}

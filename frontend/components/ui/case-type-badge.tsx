@@ -6,8 +6,8 @@ const caseTypeStyles: Record<CaseType, { container: string, text: string }> = {
         text: "text-ai-text"
     },
     "PAGA": {
-        container: "bg-pending-bg border-pending-border",
-        text: "text-pending-text"
+        container: " bg-[#FAECE7] border border-[#F0997B]",
+        text: "text-[#993C1D]"
     },
     "Class": {
         container: "bg-[#f4eaff] border-[#d4c8f5]",

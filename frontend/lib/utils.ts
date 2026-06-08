@@ -74,12 +74,11 @@ const extendedCases= cases.map(((c): ExtendedCase=>{
         return {...c, pastHearingDate, futureHearingDate, lastHearing: findPastHearings[0] ?? null, nextHearing: findFutureHearings[0] ?? null}
     }))
 */
-
-export const formatDate=(dateStr: string | null | undefined)=>{
-    if(!dateStr) return null;
-    const timestamp= Date.parse(dateStr)
+export const formatDate = (dateStr: string | null | undefined) => {
+    if (!dateStr) return null;
+    const timestamp = Date.parse(dateStr)
     if (!timestamp || !isFinite(timestamp)) return null;
-    return new Date(dateStr).toLocaleDateString('en-US', {
+    return new Date(dateStr + "T00:00:00").toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric'
@@ -94,3 +93,13 @@ export const formatTime=(timeStr: string | null | undefined)=> {
         hour12: true
     })
 }
+
+export const parseTime=(timeString: string)=>{
+  if(!timeString) return {hours: "--", ampm: ""}
+  const [hourString, minuteString]= timeString.split(":")
+  const hour= parseInt(hourString)
+  const ampm= hour >= 12 ? "PM" : "AM"
+  const displayHour= hour > 12 ? hour - 12 : hour === 0 ? 12 : hour
+  return {hours: `${displayHour}:${minuteString}`, ampm}
+}
+
