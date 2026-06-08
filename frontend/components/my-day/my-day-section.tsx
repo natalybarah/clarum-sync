@@ -54,11 +54,11 @@ const MyDaySection=({
   showDayLabels= false
 }: MyDaySectionProps)=> {
     const sortedHearings= [...hearings].sort((a,b)=>{
-      (a.hearing_time ?? "").localeCompare(b.hearing_time ?? "")
+    return  (a.hearing_time ?? "").localeCompare(b.hearing_time ?? "")
     })
 
     const sortedOutlookOnlyHearings= [...outlookOnly].sort((a,b)=>{
-      (a.outlook_time ?? "").localeCompare(b.outlook_time ?? "")
+     return (a.outlook_time ?? "").localeCompare(b.outlook_time ?? "")
     })
 
     const isEmpty = hearings.length === 0 && outlookOnly.length === 0
