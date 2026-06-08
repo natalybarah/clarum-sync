@@ -16,10 +16,7 @@ const MyDay = async () => {
     try {
         data = await getMyDay()
        
-        if (!data.token_valid && 
-            data.today.hearings.length === 0 && 
-            data.tomorrow.hearings.length === 0 && 
-            data.this_week.hearings.length === 0) {
+        if (!data.token_valid ) {
             data = MOCK_MY_DAY_DATA
         }
     } catch {
