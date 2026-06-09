@@ -207,7 +207,7 @@ export const MOCK_MY_DAY_DATA: MyDayData = {
         outlook_only: [
             {
                 outlook_id: "demo-outlook-2",
-                subject: "(Camila Team) Price v. Andy Frain Services - CMC",
+                subject: "(Camila Team) Smith v Consulting Solutions Sonic - CMC",
                 outlook_date: getNextWeekday(3),
                 outlook_time: "13:30:00",
                 sync_status: "in_outlook_only",
