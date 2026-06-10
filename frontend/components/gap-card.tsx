@@ -36,21 +36,32 @@ const GapCard=({gapCase}: {gapCase: ExtendedGapCase})=>{
     // Orders past hearings by descending order
    // const calcDaysFromLastHearing=()=>{
         const router= useRouter()
-         const pastHearings= gapCase.hearings.sort((a,b)=> {
-            const elA= Date.parse(a.hearing_date)
-            const elB= Date.parse(b.hearing_date)
-            return elB - elA
+        const today = new Date()
+        const pastHearings= gapCase.hearings
+            .filter(h => Date.parse(h.hearing_date) < today.getTime())
+            .sort((a,b)=> {
+                const elA= Date.parse(a.hearing_date)
+                const elB= Date.parse(b.hearing_date)
+                return elB - elA    
         })
+        const futureHearings= gapCase.hearings
+            .filter(h=> Date.parse(h.hearing_date) > today.getTime() )
+            .sort((a,b)=> {
+                const elA= Date.parse(a.hearing_date)
+                const elB= Date.parse(b.hearing_date)
+                return elA -elB
+            })
 
-        const result = new Date().getTime() - Date.parse(pastHearings[0].hearing_date);
-        const newResult= Math.floor(result / 1000 / 60 / 60 / 24)
-        const status: GapUrgency= newResult > 90 ? "URGENT" : "REVIEW"
+        const result = pastHearings.length > 0 ? new Date().getTime() - Date.parse(pastHearings[0].hearing_date) : null 
+        const newResult= result ? Math.floor(result / 1000 / 60 / 60 / 24) : null
+        
+        //const status: GapUrgency= newResult ? > 90 ? "URGENT" : "REVIEW" : null
         const handleVerifyCase= async()=>{
             await verifyCase(gapCase.id);
             router.refresh()
         }
 
-
+//it found to hearings descending orde february 
     
     return(
         <div className="bg-bg-card border border-border-default rounded-2xl px-4 py-3.5 flex flex-row justify-between gap-4 mb-2">
@@ -59,18 +70,21 @@ const GapCard=({gapCase}: {gapCase: ExtendedGapCase})=>{
                 <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[14px] font-semibold text-text-primary">{gapCase.name}</span>
                     <CaseTypeBadge variant={gapCase.case_type as CaseType} />
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded full border ${urgencyStyles[status]}`}>{status}</span>
+                    {/*<span className={`text-[10px] font-bold px-2 py-0.5 rounded full border ${urgencyStyles[status]}`}>{status}</span>*/}
                 </div>
 
-                <div className=" text-[13px] text-text-tertiary">
-                    No confirmed next hearing 
-                    {newResult &&(
-                      <span className="text-text-tertiary">
-                       {` — last hearing was ${newResult} days ago`} 
-                      </span> 
-                    )}  
-
-                   
+                <div className="text-[13px] text-text-tertiary">
+                    No confirmed next hearing
+                    {newResult > 0 && (
+                        <span className="text-text-tertiary">
+                            {` — last hearing was ${newResult} days ago`}
+                        </span>
+                    )}
+                    {futureHearings.length > 0 && (
+                        <span className="text-text-tertiary">
+                            {` · Next known: ${formatDate(futureHearings[0].hearing_date)}  — ${futureHearings[0].hearing_type}`}
+                        </span>
+                    )}
                 </div>
                     <div className="text-[11px] text-text-muted font-mono">
                         {gapCase.last_hearing_date

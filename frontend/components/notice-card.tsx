@@ -8,6 +8,8 @@ import { confirmNotice, rejectNotice, verifyCase } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ManualEntryPanel from "./manual-entry-panel";
+import { toast } from "sonner";
+
 
 type ConfidenceVariant = "MEDIUM" | "LOW"
 
@@ -20,17 +22,35 @@ const confidenceStyles: Record<ConfidenceVariant, string>={
 
 const NoticeCard= ({notice}: {notice: Notice})=>{
     const [showPanel, setShowPanel] = useState<boolean>(false)
+    const [isConfirming, setIsConfirming] = useState<boolean>(false)
+    const [isRejecting, setIsRejecting] = useState<boolean>(false)
 
     const router= useRouter()
-    const handleConfirm= async()=>{
-        await confirmNotice(notice.id);
-        router.refresh()
+    const handleConfirm = async () => {
+        setIsConfirming(true)
+        try {
+            await confirmNotice(notice.id)
+            toast.success("Hearing confirmed successfully")
+            router.refresh()
+        } catch (error) {
+            toast.error("Failed to confirm hearing. Please try again.")
+        } finally {
+            setIsConfirming(false)
+        }
+    }
+    const handleReject = async () => {
+        setIsRejecting(true)
+        try {
+            await rejectNotice(notice.id)
+            toast.success("Notice rejected")
+            router.refresh()
+        } catch (error) {
+            toast.error("Failed to reject notice. Please try again.")
+        } finally {
+            setIsRejecting(false)
+        }
     }
 
-    const handleReject= async()=>{
-        await rejectNotice(notice.id);
-        router.refresh()
-    }
     const confidence= notice.confidence as ConfidenceVariant
 
     return(
@@ -63,14 +83,17 @@ const NoticeCard= ({notice}: {notice: Notice})=>{
             <div className="flex items-center gap-2 flex-0">
             {confidence === "MEDIUM" ? (
                 <>
-                    <QueuePillButton variant="confirm" onClick={handleConfirm}/>
-                    <QueueIconButton variant="edit" onClick={() => setShowPanel(true)}/>
-                    <QueueIconButton variant="reject" onClick={handleReject}/>
+                    <QueuePillButton variant="confirm" onClick={handleConfirm} disabled={isConfirming || isRejecting} loading={isConfirming}/>
+                    <QueueIconButton variant="edit" onClick={() => setShowPanel(true)} disabled={isConfirming || isRejecting}
+                        />
+                    <QueueIconButton variant="reject" onClick={handleReject}  disabled={isConfirming || isRejecting}
+                        loading={isRejecting}/>
                 </>
             ) : (
                 <>
-                    <QueuePillButton variant="manual" onClick={() => setShowPanel(true)}/>
-                    <QueueIconButton variant="reject" onClick={handleReject}/>
+                    <QueuePillButton variant="manual" onClick={() => setShowPanel(true)} disabled={isRejecting}/>
+                    <QueueIconButton variant="reject" onClick={handleReject}  disabled={isRejecting}
+                        loading={isRejecting}/>
                 </>
             )}
         </div>

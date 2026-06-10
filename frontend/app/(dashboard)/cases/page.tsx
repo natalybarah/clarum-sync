@@ -3,7 +3,7 @@ import { getCases, getGapCases, getNotices} from "@/lib/api";
 import SummaryCard from "@/components/summary-card";
 import Dashboard from "@/components/dashboard";
 import SearchBar from "@/components/search-bar";
-
+import TableLoading from "@/components/loading-states/loading-dashboard";
 async function Home({searchParams}: {
   searchParams: Promise<{
     query?: string;
@@ -45,14 +45,15 @@ async function Home({searchParams}: {
               />
           </div>
             <SearchBar queueCount={queueCount} />
-            <Dashboard 
+           { <Dashboard 
                 cases={casesData.cases} 
                 notices={notices}
                 currentPage={casesData.page}
                 totalPages={casesData.total_pages}
              
         
-            />
+            />}
+        
     </div>
   );
 }

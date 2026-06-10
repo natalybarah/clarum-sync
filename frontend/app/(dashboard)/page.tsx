@@ -5,18 +5,17 @@ import MyDayHeader from "@/components/my-day/myDayHeader"
 import MyDaySection from "@/components/my-day/my-day-section"
 import { MOCK_MY_DAY_DATA } from "@/lib/mock-date"
 import { IconLockHeart } from "@tabler/icons-react"
-import { Icon } from "lucide-react"
 
 const MyDay = async () => {
     const today= new Date();
     const getDay= today.getDay()
 
     let data: MyDayData
-
+    const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true"
     try {
         data = await getMyDay()
        
-        if (!data.token_valid ) {
+        if (!data.token_valid && demoMode) {
             data = MOCK_MY_DAY_DATA
         }
     } catch {
@@ -50,7 +49,7 @@ const MyDay = async () => {
 
     return (
         <div className="flex flex-col gap-8">
-          {!data.token_valid && (
+          {!data.token_valid && demoMode && (
               <div className="flex items-center gap-2 px-4 py-2.5 bg-bg-subtle border border-border-default rounded-xl">
                       <IconLockHeart className="text-brand-header w-4s h-4"/>
                   <span className="text-[11px] font-medium text-text-muted">
