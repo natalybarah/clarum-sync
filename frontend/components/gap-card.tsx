@@ -75,7 +75,7 @@ const GapCard=({gapCase}: {gapCase: ExtendedGapCase})=>{
 
                 <div className="text-[13px] text-text-tertiary">
                     No confirmed next hearing
-                    {newResult > 0 && (
+                    {newResult !== null && newResult > 0 && (
                         <span className="text-text-tertiary">
                             {` — last hearing was ${newResult} days ago`}
                         </span>
